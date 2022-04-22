@@ -13,7 +13,8 @@
       <div class="inline-block  pl-6">
         <div v-for="item in menu"
              class="inline-block text-md text-white pl-6"
-             :key="item">
+             :key="item"
+             @click="this.$emit('menuItemClick', item)">
           {{item.name}}
         </div>
       </div>
@@ -40,7 +41,7 @@ import { Setting, Expand, Fold } from '@element-plus/icons-vue'
 import { ElIcon } from 'element-plus'
 export default {
   components: { Setting, Expand, ElIcon, Fold },
-  emits: ['toggleLeftMenuCollapse'],
+  emits: ['toggleLeftMenuCollapse', 'menuItemClick'],
   props: {
     title: String,
     version: String,
