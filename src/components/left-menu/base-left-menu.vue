@@ -3,7 +3,8 @@
            :collapse="isCollapse">
     <el-menu-item v-for="item in menu"
                   :key="item.id"
-                  :index="item.uuid">
+                  :index="item.uuid"
+                  @click="this.$emit('menuItemClick', item)">
       <el-icon>
         <component :is="item.icon"></component>
       </el-icon>
@@ -30,15 +31,9 @@ export default {
   },
   methods: {},
   watch: {
-    menu (val) {
-      console.log(val);
-    },
     leftMenuCollapse (val) {
       this.isCollapse = val
     },
-    isCollapse (val) {
-      console.log(val);
-    }
   },
 }
 </script>

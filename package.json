@@ -19,6 +19,7 @@
     "hammerjs": "^2.0.8",
     "k-progress-v3": "^1.0.0",
     "normalizr": "^3.6.2",
+    "pluralize": "^8.0.0",
     "sass": "^1.49.9",
     "sass-loader": "10.1.1",
     "swiper": "6",

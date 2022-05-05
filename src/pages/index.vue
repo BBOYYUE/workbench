@@ -10,13 +10,27 @@
     </template>
     <template v-slot:left-menu>
       <base-left-menu :menu="leftMenu"
-                      :leftMenuCollapse="leftMenuCollapse"></base-left-menu>
+                      :leftMenuCollapse="leftMenuCollapse"
+                      @menuItemClick="leftMenuItemClick"></base-left-menu>
     </template>
     <template v-slot:navigation>
 
     </template>
     <template v-slot:body>
+      <div>
+        <!---标准组件, 列表页到详情页再到关联模块页面的三级页面--->
+        <div v-if="isSelfCorrelation">
+          <self-correlation-list :modelId="activeModuleId"></self-correlation-list>
+        </div>
+        <div v-else>
+          <base-list v-if="activeType==1"
+                     :modelId="activeModuleId" />
+          <base-detail v-else
+                       :modelId="activeModuleId" />
+        </div>
+        <!--- 递归组件, 无限递归的列表页 --->
 
+      </div>
     </template>
   </base-layout>
 </template>
@@ -24,11 +38,14 @@
 import BaseHeader from '@/components/header/base-header.vue';
 import BaseLeftMenu from "@/components/left-menu/base-left-menu.vue";
 import { mapState } from "vuex";
-import BaseLayout from "../components/layout/base-layout.vue"
+import BaseLayout from "../components/layout/base-layout.vue";
+import BaseList from "../module/base-list.vue";
+import BaseDetail from "../module/base-detail.vue";
+import SelfCorrelationList from "../module/self-correlation-list.vue";
 import * as MutationType from "../MutationType"
 export default {
   name: "homeComponent",
-  components: { BaseLayout, BaseHeader, BaseLeftMenu },
+  components: { BaseLayout, BaseHeader, BaseLeftMenu, BaseList, BaseDetail, SelfCorrelationList },
   data () {
     return {
       leftMenuCollapse: false
@@ -51,12 +68,22 @@ export default {
       type: "option",
       value: entities.option,
     })
+    console.log(entities.option);
+    let assetEnities = this.$store.getters['asset/entities'];
   },
   computed: mapState({
     module: (state) => state.option.module,
     page: (state) => state.option.page,
     option: (state) => state.option.option,
     activePageId: (state) => state.option.activePageId,
+    activeModuleId: (state) => state.option.activeModuleId,
+    activeModule () {
+      return this.module && this.activeModuleId ? this.module[this.activeModuleId] : {};
+    },
+    isSelfCorrelation () {
+      return this.activeModule ? this.activeModule.isSelfCorrelation : false;
+    },
+    activeType: (state) => state.option.activeType,
     title () {
       return this.option[1] ? this.option[1].title : ''
     },
@@ -95,14 +122,17 @@ export default {
         type: "activePageId",
         value: menuItem.id,
       })
+      this.$store.commit('option/' + [MutationType.SET_MORE], { type: "activeType", value: 1 });
+    },
+    leftMenuItemClick (menuItem) {
+      this.$store.commit('option/' + [MutationType.SET_MORE], {
+        type: "activeModuleId",
+        value: menuItem.id,
+      })
+      this.$store.commit('option/' + [MutationType.SET_MORE], { type: "activeType", value: 1 });
     },
     toggleLeftMenuCollapse () {
       this.leftMenuCollapse = !this.leftMenuCollapse
-    }
-  },
-  watch: {
-    mainMenu (val) {
-      console.log(val);
     }
   }
 }
