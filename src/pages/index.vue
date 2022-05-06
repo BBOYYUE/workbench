@@ -19,7 +19,7 @@
     <template v-slot:body>
       <div>
         <!---标准组件, 列表页到详情页再到关联模块页面的三级页面--->
-        <div v-if="isSelfCorrelation">
+        <div v-if="isSelfCorrelation&&false">
           <self-correlation-list :modelId="activeModuleId"></self-correlation-list>
         </div>
         <div v-else>

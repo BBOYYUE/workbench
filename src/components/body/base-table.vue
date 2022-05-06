@@ -123,9 +123,8 @@ export default {
 
         if (this.isSelfCorrelation && this.activeModelData) {
           if (this.type == 'list') {
-            console.log(111, this.model, this.entities, this.entities[this.model])
+            console.log(this.model, this.entities, this.entities[this.model])
             for (let item in this.entities[this.model]) {
-              console.log(this.entities[this.model][item])
               if (this.entities[this.model][item].parent_id === 0) {
                 list.push(this.entities[this.model][item])
               }
