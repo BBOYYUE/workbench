@@ -19,15 +19,11 @@
     <template v-slot:body>
       <div>
         <!---标准组件, 列表页到详情页再到关联模块页面的三级页面--->
-        <div v-if="isSelfCorrelation&&false">
-          <self-correlation-list :modelId="activeModuleId"></self-correlation-list>
-        </div>
-        <div v-else>
-          <base-list v-if="activeType==1"
+
+        <base-list v-if="activeType==1"
+                   :modelId="activeModuleId" />
+        <base-detail v-else
                      :modelId="activeModuleId" />
-          <base-detail v-else
-                       :modelId="activeModuleId" />
-        </div>
         <!--- 递归组件, 无限递归的列表页 --->
 
       </div>
@@ -41,11 +37,10 @@ import { mapState } from "vuex";
 import BaseLayout from "../components/layout/base-layout.vue";
 import BaseList from "../module/base-list.vue";
 import BaseDetail from "../module/base-detail.vue";
-import SelfCorrelationList from "../module/self-correlation-list.vue";
 import * as MutationType from "../MutationType"
 export default {
   name: "homeComponent",
-  components: { BaseLayout, BaseHeader, BaseLeftMenu, BaseList, BaseDetail, SelfCorrelationList },
+  components: { BaseLayout, BaseHeader, BaseLeftMenu, BaseList, BaseDetail },
   data () {
     return {
       leftMenuCollapse: false
@@ -68,7 +63,6 @@ export default {
       type: "option",
       value: entities.option,
     })
-    console.log(entities.option);
     let assetEnities = this.$store.getters['asset/entities'];
   },
   computed: mapState({

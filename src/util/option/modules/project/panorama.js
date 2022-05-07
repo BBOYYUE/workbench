@@ -1,13 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 export default {
   "name": "全景作品",
-  "id": 4,
+  "id": 5,
   "panel": {},
   "icon": 'document',
-  "model": "folder",
+  "model": "panorama",
   "namespace": "asset",
-  "isSelfCorrelation": true,
-  "selfCorrelationKey": "folders",
   "create": {
     fields: [{
       name: "name",
@@ -32,7 +30,7 @@ export default {
   "list": {
     "actions": [
       {
-        name: "创建文件夹",
+        name: "发布全景作品",
         buttonType: "success",
         onclick: ["showDialogForm", "create"],
       },
@@ -40,7 +38,7 @@ export default {
     "fields": [
       {
         name: "name",
-        alias: "文件夹名称",
+        alias: "作品名称",
         type: "buttonText",
         onclick: ['goToDetailByTableItem', 'uuid']
       },
@@ -49,32 +47,19 @@ export default {
   "details": {
     "actions": [
       {
-        name: "发布作品",
-        buttonType: "success",
-        onclick: ["showInlineForm", "update"],
-      },
-      {
-        name: "编辑",
+        name: "编辑全景",
         buttonType: "primary",
-        onclick: ["showInlineForm", "update"],
-      }
+        onclick: ["showWorkEditer", "_bank"],
+      },
     ],
     "fields": [
       {
         name: "name",
-        alias: "文件夹名称",
+        alias: "作品名称",
         type: "buttonText",
       }
     ],
   },
-  "hasMany": [{
-    "page": 1,
-    "module": 4,
-    "name": 'folder',
-    "canShow": [[
-      'parent_id', 'neq', 0
-    ]]
-  }],
   "hasOne": {},
   "uuid": uuidv4().substring(0, 5),
   "button-group": [

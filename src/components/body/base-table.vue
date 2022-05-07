@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card v-show="modelData.length > 0 || this.type == 'list'">
     <!-- <dialog-form></dialog-form> -->
     <template #header>
       <div class="flex flex-row justify-between">
@@ -103,57 +103,70 @@ export default {
     entities () {
       return this.$store.getters[this.namespace + '/entities'];
     },
+    optionId () {
+      return this.option && this.option.id ? this.option.id : 0
+    },
     /**
      * 模块配置项结束
      */
 
     modelData () {
       let list = []
-      /**
-       * 这里添加了一个过滤条件, 就是查看 activeModule 的 model 是否包含多个表格项, 如果包含的话, 只显示包含的项 
-       * pluralize 将一个
-       */
 
       /**
-       * 这里先做区分, active 前缀指的是在 vuex 中当前操作的模块信息.
-       * 没又 active 前缀指的.
+       * 这里首先判断当前table展示的是否为当前模块的数据.
+       * 如果是的话 需要判断是否是递归数据类型
        */
       if (this.activeModule && this.activeModule.model === this.model) {
-        console.log("这里表示当前项使用的模块和当前选中的模块相同")
 
+        /**
+         * 如果是递归数据类型
+         */
         if (this.isSelfCorrelation && this.activeModelData) {
+
+          /**
+           * 如果当时展示的是列表页, 那么遍历这个实体的所有数据, 展示 parent_id 为 0 的内容  
+           * 递归数据的列表页为第一页
+           */
           if (this.type == 'list') {
-            console.log(this.model, this.entities, this.entities[this.model])
             for (let item in this.entities[this.model]) {
               if (this.entities[this.model][item].parent_id === 0) {
                 list.push(this.entities[this.model][item])
               }
             }
             return list
-          } else if (this.type == 'detail') {
+          }
+
+          /**
+           * 如果不是列表页, 那么找到上一页的子页
+           * selfCorrelationKey 是递归项的资源的 key
+           */
+          else if (this.type == 'detail') {
             let selfCorrelationKey = this.selfCorrelationKey;
-            console.log(this.activeModelData, selfCorrelationKey)
             for (let item in this.activeModelData[selfCorrelationKey]) {
               let key = this.activeModelData[selfCorrelationKey][item];
               list.push(this.entities[this.model][key])
             }
             return list
           }
-        } else {
+        }
+
+        /**
+         * 如果不是递归数据类型, 那么展示所有的数据
+         */
+        else {
           return this.model && this.entities[this.model] ? this.entities[this.model] : {};
         }
       }
 
       /**
-       * TODO 这里将来需要重构
+       * 当前table展示的是关联项的数据
        */
       if (this.activeHasMany) {
-        console.log("这里表示当前项包含子项")
         /**
-         * 这个的 this.model 是当前模块的英文名
+         * 这个的 this.model 是当前模块的英文名, 当前 table 展示的数据的模块名
          */
         if (this.activeModelData[pluralize(this.model)]) {
-          console.log(this.activeModelData[pluralize(this.model)])
           /**
            * 这里的 filters 是当前模块的可关联项列表
            */
@@ -169,6 +182,12 @@ export default {
                */
               for (let item in this.activeHasMany) {
                 let option = this.activeHasMany[item];
+
+                /**
+                 * 如果当前循环项不是当前模块的配置项, 那么跳过
+                 */
+                if (option.module != this.optionId) continue;
+
                 if (!option.canShow) {
                   list.push(data)
                 } else {
@@ -283,8 +302,8 @@ export default {
     },
     canShow (canShow, data) {
       let judge = false;
-      for (let item in this.canShow) {
-        let canShow = this.canShow[item]
+      for (let item in canShow) {
+        let canShow = canShow[item]
         let key = canShow[0];
         let rule = canShow[1];
         let val = canShow[2];

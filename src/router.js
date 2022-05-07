@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import homeComponent from "./pages/index.vue"
+import workEditorComponent from "./pages/work-editor.vue"
 const isWeChat = /MicroMessenger/i.test(window.navigator.userAgent)
 const routes = [
   {
@@ -7,6 +8,18 @@ const routes = [
     name: 'home',
     component: homeComponent,
     props: true,
+    meta: {
+      auth: isWeChat,
+    },
+  }, {
+    path: '/work-editor',
+    name: 'work-editor',
+    component: workEditorComponent,
+    props: route => ({
+      workType: route.query.work_type,
+      assetType: route.query.asset_type,
+      uuid: route.query.uuid
+    }),
     meta: {
       auth: isWeChat,
     },

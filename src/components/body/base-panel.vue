@@ -121,10 +121,17 @@ export default {
     showInlineForm (field) {
       this.inlineFieldType = field
       this.inlineVisible = true
+
       for (let item in this.inlineField) {
         let field = this.inlineField[item].name;
         this.form[field] = this.panelData[field]
       }
+    },
+    showWorkEditer (field) {
+      let work_type = this.panelData.work_type;
+      let asset_type = this.panelData.asset_type;
+      let asset_uuid = this.panelData.uuid;
+      window.open(location.href + "work-editor?work_type=" + work_type + "&asset_type=" + asset_type + "&uuid=" + asset_uuid, '_blank');
     },
     saveData () {
       axios.post(this.inlineApi, this.form)

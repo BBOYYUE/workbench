@@ -22,8 +22,7 @@
           <div class="bg-gray-100 w-full h-10 flex-grow-0 border-b-2  shadow-lg">
             <slot name="navigation"></slot>
           </div>
-          <slot name="body">
-          </slot>
+          <slot name="body"></slot>
         </div>
       </div>
     </div>

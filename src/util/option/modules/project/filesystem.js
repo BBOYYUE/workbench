@@ -1,18 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
 export default {
-  "name": "作品目录",
-  "id": 4,
+  "name": "文件夹",
+  "id": 6,
   "panel": {},
   "icon": 'document',
   "model": "folder",
-  "namespace": "asset",
+  "namespace": "filesystem",
   "isSelfCorrelation": true,
-  "selfCorrelationKey": "folders",
+  "selfCorrelationKey": "childer",
   "apiUrl": "",
   "create": {
     fields: [{
       name: "name",
-      alias: "目录名称",
+      alias: "文件夹名称",
       type: "text"
     }],
     api: ""
@@ -20,11 +20,11 @@ export default {
   "update": {
     fields: [{
       name: "name",
-      alias: "目录名称",
+      alias: "文件夹名称",
       type: "text"
     }, {
       name: "uuid",
-      alias: "目录uuid",
+      alias: "文件夹uuid",
       type: "text",
       disabled: true
     }],
@@ -33,7 +33,7 @@ export default {
   "list": {
     "actions": [
       {
-        name: "创建目录",
+        name: "创建文件夹",
         buttonType: "success",
         onclick: ["showDialogForm", "create"],
       },
@@ -41,7 +41,7 @@ export default {
     "fields": [
       {
         name: "name",
-        alias: "目录名称",
+        alias: "文件夹名称",
         type: "buttonText",
         onclick: ['goToDetailByTableItem', 'uuid']
       },
@@ -50,29 +50,23 @@ export default {
   "details": {
     "actions": [
       {
-        name: "编辑目录",
+        name: "编辑",
         buttonType: "primary",
-        onclick: ["showInlineForm", "update"],
-      }
+        onclick: ["showWorkEditer", "update"],
+      },
     ],
     "fields": [{
       name: "name",
-      alias: "目录名称",
+      alias: "文件夹名称",
       type: "buttonText",
     }],
   },
   "hasMany": [{
     "page": 1,
     "module": 4,
-    "canshow": ['asset_type', 'eq', 3]
   }, {
     "page": 1,
-    "module": 5,
-    "canshow": ['asset_type', 'eq', 1]
-  }, {
-    "page": 1,
-    "module": 6,
-    "canshow": ['asset_type', 'eq', 1]
+    "module": 5
   }],
   "hasOne": {},
   "uuid": uuidv4().substring(0, 5),

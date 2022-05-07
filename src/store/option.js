@@ -19,12 +19,6 @@ const optionData =
       "uuid": uuidv4().substring(0, 5),
       "pages": [
         project,
-        {
-          "id": 3,
-          "name": "文件管理器",
-          "model": "file",
-          "uuid": uuidv4().substring(0, 5),
-        }
       ],
     }
   ]
