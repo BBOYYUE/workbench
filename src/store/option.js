@@ -32,6 +32,7 @@ export default {
     activeModuleId: 1,
     activeType: 1,
     activeDataId: 1,
+
   },
   getters: {
     entities () {

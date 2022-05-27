@@ -12,7 +12,7 @@
       </div>
       <div class="inline-block align-middle h-full w-0"></div>
     </div>
-    <div class="h-16">
+    <!-- <div class="h-16">
       <div class="inline-block">
         <div v-for="item in menu"
              class="inline-block text-md text-white p-6"
@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="inline-block align-middle h-full w-0"></div>
-    </div>
+    </div> -->
     <div class="h-16 w-80">
       <div class="flex flex-row justify-end">
         <!-- <div class="flex flex-col justify-center">

@@ -27,7 +27,7 @@
         </el-form-item>
         <div class="flex flex-row justify-end">
           <el-button @click="this.inlineVisible = false">取消</el-button>
-          <el-button @click="this.saveData()"
+          <el-button @click="this.updateData()"
                      type="success">保存</el-button>
         </div>
       </el-form>
@@ -60,6 +60,9 @@ export default {
     info () {
       return { name: "name", label: "项目名称" };
     },
+    namespace () {
+      return this.option && this.option.namespace ? this.option.namespace : ""
+    },
     name () {
       return this.option && this.option.name ? this.option.name : ""
     },
@@ -67,16 +70,16 @@ export default {
       return this.option ? this.option.details : ''
     },
     create () {
-      return this.option && this.inlineFieldType && this.option.create ? this.option.create : []
+      return this.option && this.inlineFormType && this.option.create ? this.option.create : []
     },
     update () {
-      return this.option && this.inlineFieldType && this.option.update ? this.option.update : []
+      return this.option && this.inlineFormType && this.option.update ? this.option.update : []
     },
     inlineField () {
-      return this[this.inlineFieldType] ? this[this.inlineFieldType].fields : []
+      return this[this.inlineFormType] ? this[this.inlineFormType].fields : []
     },
     inlineApi () {
-      return this[this.inlineFieldType] ? this[this.inlineFieldType].api : []
+      return this[this.inlineFormType] ? this[this.inlineFormType].api : []
     },
 
     actions () {
@@ -85,17 +88,17 @@ export default {
     fields () {
       return this.option && this.option.details && this.option.details.fields ? this.option.details.fields : ''
     },
-    namespace () {
-      return this.option && this.option.namespace ? this.option.namespace : ''
-    },
     model () {
       return this.option && this.option.model ? this.option.model : ''
     },
     entities () {
       return this.$store.getters[this.namespace + '/entities'];
     },
+    storeState () {
+      return this.$store.state[this.namespace]
+    },
     modelData () {
-      return this.model && this.entities[this.model] ? this.entities[this.model] : {};
+      return this.model && this.storeState[this.model] ? this.storeState[this.model] : {};
     },
     activeDataId () {
       return this.$store.state.option.activeDataId
@@ -119,7 +122,7 @@ export default {
       this.$store.commit('option/' + [MutationType.SET_MORE], { type: "activeType", value: 1 });
     },
     showInlineForm (field) {
-      this.inlineFieldType = field
+      this.inlineFormType = field
       this.inlineVisible = true
 
       for (let item in this.inlineField) {
@@ -133,30 +136,19 @@ export default {
       let asset_uuid = this.panelData.uuid;
       window.open(location.href + "work-editor?work_type=" + work_type + "&asset_type=" + asset_type + "&uuid=" + asset_uuid, '_blank');
     },
-    saveData () {
-      axios.post(this.inlineApi, this.form)
-        .then((res) => {
-          this.form = {}
-          this.$message.success("保存成功!");
-          if (res.data.code != 200) return
-        })
-        .catch((err) => {
-          if (err.response.data.errors) {
-            for (let item in err.response.data.errors) {
-              let msg = err.response.data.errors[item][0]
-              this.$message.error(msg);
-            }
-          } else {
-            this.$message.error(err.response.status + ": " + err.response.statusText);
-          }
-        })
+    updateData () {
+      let formData = {
+        form: this.form,
+        apiUrl: this.inlineApi ? this.inlineApi : this.option.apiUrl
+      }
+      this.$store.dispatch(this.namespace + "/" + MutationType.UPDATE_DATA, formData)
     }
   },
   data () {
     return {
       inlineVisible: false,
       form: {},
-      inlineFieldType: ""
+      inlineFormType: ""
     }
   }
 }

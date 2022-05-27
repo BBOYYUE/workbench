@@ -5,8 +5,11 @@ export default {
   "icon": 'document',
   "model": "product",
   "namespace": "project",
+  "apiUrl": "http://192.168.10.10/api/v2/products",
+  "include": 'modules',
   "uuid": uuidv4().substring(0, 5),
-  "panel": {},
+  "create": {},
+  "update": {},
   "list": {
     "actions": [
       {

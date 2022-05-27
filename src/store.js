@@ -5,8 +5,18 @@ import project from "./store/project"
 const store = createStore({
   getters: {},
   actions: {},
-  mutations: {},
-  state: {},
+  mutations: {
+    setFetching (state, fetching) {
+      state.fetching = fetching
+    },
+    setStale (state, stale) {
+      state.stale = stale
+    }
+  },
+  state: {
+    fetching: false,
+    stale: false,
+  },
   modules: {
     option: option,
     asset: asset,

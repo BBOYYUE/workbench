@@ -1,12 +1,44 @@
 <template>
-  <el-card v-show="modelData.length > 0 || this.type == 'list'">
-    <!-- <dialog-form></dialog-form> -->
+  <el-card>
     <template #header>
       <div class="flex flex-row justify-between">
         <div>
           <span class="text-lg font-semibold">{{ name }}列表</span>
         </div>
-        <div class="">
+
+        <div class="flex flex-row space-x-10">
+          <div class="flex flex-row  space-x-2">
+            <el-input v-model="input3"
+                      placeholder="请输入搜索关键字"
+                      class="input-with-select">
+              <template #append>
+                <el-button>
+                  <el-icon :size="size"
+                           :color="color">
+                    <Search />
+                  </el-icon>
+                </el-button>
+              </template>
+              <template #prepend>
+                <el-select v-model="select"
+                           placeholder="关键字类型"
+                           style="width: 120px">
+                  <el-option label="名称"
+                             value="name" />
+                  <el-option label="uuid"
+                             value="uuid" />
+                </el-select>
+              </template>
+            </el-input>
+            <el-select v-model="select"
+                       placeholder="排序"
+                       style="width: 120px">
+              <el-option label="名称"
+                         value="name" />
+              <el-option label="uuid"
+                         value="uuid" />
+            </el-select>
+          </div>
           <el-button v-for="item in actions"
                      :type="item.buttonType"
                      :key="item"
@@ -30,6 +62,7 @@
         </template>
       </el-table-column>
     </el-table>
+
     <el-dialog v-model="dialogVisible"
                width="500px"
                :title="name">
@@ -61,6 +94,12 @@ export default {
     /**
      * 当前组件展示的 模块配置项开始
      */
+    fetching () {
+      return this.$store.state.fetching
+    },
+    stale () {
+      return this.$store.state.stale
+    },
     info () {
       return { name: "name", label: "项目名称" };
     },
@@ -103,65 +142,18 @@ export default {
     entities () {
       return this.$store.getters[this.namespace + '/entities'];
     },
+    storeState () {
+      return this.$store.state[this.namespace]
+    },
     optionId () {
       return this.option && this.option.id ? this.option.id : 0
     },
+
     /**
-     * 模块配置项结束
+     * hasmany
      */
-
-    modelData () {
+    hasManyData () {
       let list = []
-
-      /**
-       * 这里首先判断当前table展示的是否为当前模块的数据.
-       * 如果是的话 需要判断是否是递归数据类型
-       */
-      if (this.activeModule && this.activeModule.model === this.model) {
-
-        /**
-         * 如果是递归数据类型
-         */
-        if (this.isSelfCorrelation && this.activeModelData) {
-
-          /**
-           * 如果当时展示的是列表页, 那么遍历这个实体的所有数据, 展示 parent_id 为 0 的内容  
-           * 递归数据的列表页为第一页
-           */
-          if (this.type == 'list') {
-            for (let item in this.entities[this.model]) {
-              if (this.entities[this.model][item].parent_id === 0) {
-                list.push(this.entities[this.model][item])
-              }
-            }
-            return list
-          }
-
-          /**
-           * 如果不是列表页, 那么找到上一页的子页
-           * selfCorrelationKey 是递归项的资源的 key
-           */
-          else if (this.type == 'detail') {
-            let selfCorrelationKey = this.selfCorrelationKey;
-            for (let item in this.activeModelData[selfCorrelationKey]) {
-              let key = this.activeModelData[selfCorrelationKey][item];
-              list.push(this.entities[this.model][key])
-            }
-            return list
-          }
-        }
-
-        /**
-         * 如果不是递归数据类型, 那么展示所有的数据
-         */
-        else {
-          return this.model && this.entities[this.model] ? this.entities[this.model] : {};
-        }
-      }
-
-      /**
-       * 当前table展示的是关联项的数据
-       */
       if (this.activeHasMany) {
         /**
          * 这个的 this.model 是当前模块的英文名, 当前 table 展示的数据的模块名
@@ -169,14 +161,15 @@ export default {
         if (this.activeModelData[pluralize(this.model)]) {
           /**
            * 这里的 filters 是当前模块的可关联项列表
+           * 这里的pluralize是名词的复数形式
            */
           let filters = this.activeModelData[pluralize(this.model)];
           for (let index in filters) {
             /**
              * 这里拿到关联项
              */
-            if (this.entities[this.model][filters[index]]) {
-              let data = this.entities[this.model][filters[index]];
+            if (this.storeState[this.model][filters[index]]) {
+              let data = this.storeState[this.model][filters[index]];
               /**
                * 这里校验了一下 hasMany 的过滤逻辑
                */
@@ -201,8 +194,48 @@ export default {
         }
       }
       return list;
-
     },
+
+    /**
+     * 正常情况
+     */
+    selfData () {
+      return this.model && this.activeStoreState[this.model] ? this.activeStoreState[this.model] : [];
+    },
+
+    /**
+     * 自关联第一页
+     */
+    selfCorrelationDataList () {
+      let list = []
+      if (this.activeModelData) {
+        for (let item in this.activeStoreState[this.model]) {
+          if (this.activeStoreState[this.model][item].parent_id === 0) {
+            list.push(this.activeStoreState[this.model][item])
+          }
+        }
+      }
+      return list
+    },
+    /**
+     * 自关联其他页
+     */
+    selfCorrelationDataDetail () {
+      let list = []
+      if (this.activeModelData && this.selfCorrelationKey) {
+        console.log(this.activeModelData)
+        for (let item in this.activeModelData[this.selfCorrelationKey]) {
+          let key = this.activeModelData[this.selfCorrelationKey][item];
+          list.push(this.activeStoreState[this.model][key])
+        }
+      }
+      return list
+    },
+    /**
+     * 模块配置项结束
+     */
+
+
 
     /**
      * 整个后台展示的模块配置项 开始
@@ -225,11 +258,20 @@ export default {
     activeEntites () {
       return this.$store.getters[this.activeNamespace + '/entities'];
     },
+    activeStoreState () {
+      return this.$store.state[this.activeNamespace]
+    },
     activeDataId () {
       return this.$store.state.option && this.$store.state.option.activeDataId ? this.$store.state.option.activeDataId : 0;
     },
     activeModelData () {
-      return this.activeModel && this.activeEntites && this.activeEntites[this.activeModel] && this.activeDataId && this.activeEntites[this.activeModel][this.activeDataId] ? this.activeEntites[this.activeModel][this.activeDataId] : {};
+      return this.activeModel &&
+        this.activeStoreState &&
+        this.activeStoreState[this.activeModel] &&
+        this.activeDataId &&
+        this.activeStoreState[this.activeModel][this.activeDataId] ?
+        this.activeStoreState[this.activeModel][this.activeDataId] :
+        {};
     },
     /**
      * 整个后台的配置项, 结束
@@ -244,9 +286,16 @@ export default {
     },
     tableWidth () {
       return this.$refs.baseTable.bodyWidth
+    },
+
+    modelDataKey () {
+      return this.modelDataType + '_' + this.model + '_' + this.type + '_' + this.activeDataId
     }
+
+
   },
   methods: {
+
     onTableItemClick (onclick, tableItem) {
       if (!onclick) return;
       if (isArray(onclick[0])) {
@@ -295,7 +344,6 @@ export default {
               this.$message.error(msg);
             }
           } else {
-            console.log(err, err.response.statusText);
             this.$message.error(err.response.status + ": " + err.response.statusText);
           }
         })
@@ -319,13 +367,105 @@ export default {
       }
       return judge;
     },
+    getData (modelDataType, namespace, model, apiUrl, include) {
+      let formData = {
+        apiUrl,
+        model
+      }
+      switch (modelDataType) {
+        case 'selfCorrelationDataDetail':
+        case 'selfCorrelationDataList':
+        case 'hasManyData':
+        case 'selfData':
+        default:
+          formData.include = include
+          break;
+      }
+      this.$store.dispatch(namespace + "/" + MutationType.GET_LIST, formData)
+    }
   },
+  beforeMount () {
+    if (this.option) {
+      let modelDataType;
+      if (this.activeModule && this.activeModule.model) {
+        if (this.activeModule.model == this.model) {
+          if (this.isSelfCorrelation) {
+            if (this.type == 'detail') {
+              modelDataType = 'selfCorrelationDataDetail';
+            } else {
+              modelDataType = 'selfCorrelationDataList';
+            }
+          } else {
+            modelDataType = 'selfData';
+          }
+        } else {
+          modelDataType = 'hasManyData'
+        }
+      }
+      console.log(modelDataType)
+      this.modelDataType = modelDataType
+    }
+  },
+  mounted () {
+  },
+  activated () { },
   data () {
     return {
       dialogVisible: false,
       form: {},
-      dialogFieldType: ""
+      dialogFieldType: "",
+      modelData: {},
+      modelDataType: "",
     }
+  },
+  watch: {
+    fetching (val) {
+      if (!val) {
+        let that = this
+        /**
+         * 这里有点奇奇怪怪
+         */
+        setTimeout(function () {
+          that.modelData = that[that.modelDataType]
+        }, 100)
+      }
+    },
+    modelDataKey (val) {
+      if (this.modelDataType && val) {
+        let modelData = this[this.modelDataType]
+        if (modelData && (modelData.length == 0 || Object.keys(modelData).length == 0)) {
+          this.getData(this.modelDataType, this.option.namespace, this.option.model, this.option.apiUrl, this.option.include);
+        } else {
+          this.modelData = this[this.modelDataType]
+        }
+      }
+    },
+    stale (val) {
+      if (val) {
+        this.getData(this.modelDataType, this.option.namespace, this.option.model, this.option.apiUrl, this.option.include);
+      }
+    },
+    option (val) {
+      if (val) {
+        let modelDataType;
+        if (this.activeModule && this.activeModule.model) {
+          if (this.activeModule.model == this.model) {
+            if (this.isSelfCorrelation) {
+              if (this.type == 'detail') {
+                modelDataType = 'selfCorrelationDataDetail';
+              } else {
+                modelDataType = 'selfCorrelationDataList';
+              }
+            } else {
+              modelDataType = 'selfData';
+            }
+          } else {
+            modelDataType = 'hasManyData'
+          }
+        }
+        this.modelDataType = modelDataType
+      }
+    },
   }
 }
 </script>

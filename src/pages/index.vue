@@ -14,17 +14,19 @@
                       @menuItemClick="leftMenuItemClick"></base-left-menu>
     </template>
     <template v-slot:navigation>
-
     </template>
     <template v-slot:body>
-      <div>
+      <div v-loading="fetching">
         <!---标准组件, 列表页到详情页再到关联模块页面的三级页面--->
 
-        <base-list v-if="activeType==1"
+        <!--
+          这里只有当 acitveType === 1的时候才展示列表组件.其他时候展示详情组件.
+          这里的 activeModuleId 区分的是当前展示的是那个模块的数据, 具体的来说就是 util 下的模块.
+        -->
+        <base-list v-show="activeType==1"
                    :modelId="activeModuleId" />
-        <base-detail v-else
+        <base-detail v-show="activeType==2"
                      :modelId="activeModuleId" />
-        <!--- 递归组件, 无限递归的列表页 --->
 
       </div>
     </template>
@@ -71,6 +73,7 @@ export default {
     option: (state) => state.option.option,
     activePageId: (state) => state.option.activePageId,
     activeModuleId: (state) => state.option.activeModuleId,
+    fetching: (state) => state.fetching,
     activeModule () {
       return this.module && this.activeModuleId ? this.module[this.activeModuleId] : {};
     },
@@ -127,6 +130,24 @@ export default {
     },
     toggleLeftMenuCollapse () {
       this.leftMenuCollapse = !this.leftMenuCollapse
+    }
+  },
+  watch: {
+    stale (val) {
+      if (val) {
+        console.log("数据请求中")
+        // this.$message.success('正在刷新数据!')
+      } else {
+        console.log("数据请求完成")
+      }
+    },
+    fetching (val) {
+      if (val) {
+        console.log("数据请求中")
+      } else {
+        console.log("数据请求完成")
+        // this.$message.success('数据请求成功!')
+      }
     }
   }
 }

@@ -1,5 +1,10 @@
 <template>
   <div class="m-3 flex flex-col space-y-3">
+    <!--
+      这里的 activeModule 是 util 下的module配置项
+      base-panel 是一个仪表板组件. 
+      base-table 用来展示关联项
+    -->
     <base-panel :option="activeModule"
                 v-show="activeModule"></base-panel>
     <base-table v-for="item in hasMany"
@@ -25,7 +30,8 @@ export default {
       return this.activeModuleId && this.module && this.module[this.activeModuleId] ? this.module[this.activeModuleId] : {}
     },
     hasMany () {
-      return this.activeModule && this.activeModule.hasMany ? this.activeModule.hasMany : [];
+      let hasMany = this.activeModule && this.activeModule.hasMany ? this.activeModule.hasMany : [];
+      return hasMany
     },
   }),
   methods: {
