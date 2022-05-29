@@ -8,47 +8,42 @@ export default {
   "apiUrl": "http://192.168.10.10/api/v2/modules",
   "uuid": uuidv4().substring(0, 5),
   "create": {
-    fields: [{
-      name: "name",
-      alias: "项目名称",
-      type: "text"
-    }, {
-      name: "address",
-      alias: '项目地址',
-      type: "text"
-    }, {
-      name: "phone",
-      alias: '联系方式',
-      type: "text"
-    }, {
-      name: "slogan",
-      alias: "slogan",
-      type: "text"
-    }],
+    fields: [ 
+      {
+        name: "name",
+        alias: "模块名称",
+        type: "text"
+      }, 
+      {
+        name: "router",
+        alias: '英文名',
+        type: "text"
+      }, 
+      // {
+      //   name: "type",
+      //   alias: '模块类型',
+      //   type: "select"
+      // }
+    ],
   },
   "update": {
-    fields: [{
-      name: "name",
-      alias: "项目名称",
-      type: "text"
-    }, {
-      name: "uuid",
-      alias: "uuid",
-      type: "text",
-      disabled: true
-    }, {
-      name: "address",
-      alias: '项目地址',
-      type: "text"
-    }, {
-      name: "phone",
-      alias: '联系方式',
-      type: "text"
-    }, {
-      name: "slogan",
-      alias: "slogan",
-      type: "text"
-    }],
+    fields: [
+        {
+          name: "name",
+          alias: "模块名称",
+          type: "text"
+        }, 
+        {
+          name: "router",
+          alias: '英文名',
+          type: "text"
+        }, 
+        // {
+        //   name: "type",
+        //   alias: '模块类型',
+        //   type: "select"
+        // }
+      ],
   },
   "list": {
     "actions": [

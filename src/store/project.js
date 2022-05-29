@@ -52,6 +52,15 @@ export default {
       model = formData.model
       form = formData.form
       context.commit(MutationType.UPDATE_DATA, { apiUrl, model, form });
+    },
+    [MutationType.STORE_DATA] (context, formData) {
+      let apiUrl;
+      let model;
+      let form;
+      apiUrl = formData.apiUrl 
+      model = formData.model
+      form = formData.form
+      context.commit(MutationType.STORE_DATA, { apiUrl, model, form });
     }
   },
   mutations: {
@@ -103,6 +112,27 @@ export default {
       }).catch((err) => {
         console.log(err)
       })
-    }
+    },
+    [MutationType.STORE_DATA] (state, formData){
+      let { apiUrl, model, form } = formData
+      this.commit('setFetching', true)
+      axios.post(apiUrl, form).then((res) => {
+        switch (model) {
+          case 'module':
+            state.module = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
+            break
+          case 'product':
+            state.product = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
+            break
+          case 'project':
+          default:
+            state.project = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
+            break
+        }
+        this.commit('setFetching', false)
+      }).catch((err) => {
+        console.log(err)
+      })
+    } 
   }
 }

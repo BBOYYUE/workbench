@@ -23,27 +23,30 @@ export default {
       value: "uuid"
     }
   ],
+
   "create": {
-    fields: [{
-      name: "name",
-      alias: "项目名称",
-      type: "text"
-    }, {
-      name: "address",
-      alias: '项目地址',
-      type: "text"
-    }, {
-      name: "phone",
-      alias: '联系方式',
-      type: "text"
-    }, {
-      name: "slogan",
-      alias: "slogan",
-      type: "text"
-    }],
+    fields: [
+      {
+        name: "name",
+        alias: "项目名称",
+        type: "text"
+      }, {
+        name: "address",
+        alias: '项目地址',
+        type: "text"
+      }, {
+        name: "phone",
+        alias: '联系方式',
+        type: "text"
+      }, {
+        name: "slogan",
+        alias: "slogan",
+        type: "text"
+      }
+    ],
   },
   "update": {
-    fields: [
+    update: [
       {
         name: "id",
         alias: "id",

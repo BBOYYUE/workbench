@@ -8,14 +8,56 @@ export default {
   "apiUrl": "http://192.168.10.10/api/v2/products",
   "include": 'modules',
   "uuid": uuidv4().substring(0, 5),
-  "create": {},
-  "update": {},
+  "create": {
+    fields: [
+      {
+        name: "name",
+        alias: "产品名称",
+        type: "text"
+      },
+      {
+        name: "type",
+        alias: '产品类型',
+        type: "select",
+        apiUrl: "",
+        filterField: "name"
+      },
+      {
+        name: "project",
+        alias: '所属项目',
+        type: "select",
+        apiUrl: "http://192.168.10.10/api/v2/projects",
+        filterField: "name"
+      }
+    ],
+  },
+  "update": {
+    fields: [
+      {
+        name: "name",
+        alias: "产品名称",
+        type: "text"
+      }, 
+      {
+        name: "type",
+        alias: '产品类型',
+        type: "select",
+        sourceUrl: ""
+      }, 
+      {
+        name: "project",
+        alias: '所属项目',
+        type: "select",
+        sourceUrl: ""
+      }
+    ],
+  },
   "list": {
     "actions": [
       {
         name: "新增",
         buttonType: "success",
-        onclick: ["showDialogForm", "createField"],
+        onclick: ["showDialogForm", "create"],
       },
     ],
     "fields": [
