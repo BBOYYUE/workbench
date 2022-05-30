@@ -122,6 +122,8 @@ export default {
       this.$store.commit('option/' + [MutationType.SET_MORE], { type: "activeType", value: 1 });
     },
     leftMenuItemClick (menuItem) {
+
+      // .clearData();
       this.$store.commit('option/' + [MutationType.SET_MORE], {
         type: "activeModuleId",
         value: menuItem.id,

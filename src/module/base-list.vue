@@ -2,6 +2,7 @@
   <div class="m-3">
     <base-table :option="activeModule"
                 type="list"
+                ref="baseList"
                 v-show="activeModule"></base-table>
   </div>
 </template>
@@ -20,5 +21,10 @@ export default {
       return this.module[this.activeModuleId] ?? {}
     }
   }),
+  watch: {
+    activeModuleId () {
+      this.$refs.baseList.clearData()
+    }
+  }
 }
 </script>

@@ -6,11 +6,14 @@
       base-table 用来展示关联项
     -->
     <base-panel :option="activeModule"
-                v-show="activeModule"></base-panel>
+                v-show="activeModule"
+                ref="baseList"></base-panel>
     <base-table v-for="item in hasMany"
+                ref="baseDetail"
                 type="detail"
                 :key="item"
-                :option="this.getHasManyOption(item)"></base-table>
+                :option="this.getHasManyOption(item)">
+    </base-table>
   </div>
 </template>
 <script>
@@ -21,6 +24,10 @@ export default {
   components: { BasePanel, BaseTable },
   setup () {
 
+  },
+  activated () {
+    // this.$refs.baseList.clearData()
+    // this.$refs.baseDetail.clearData()
   },
   computed: mapState({
     option: (state) => state.option,
@@ -38,6 +45,14 @@ export default {
     getHasManyOption (item) {
       let { module } = item
       return this.module[module]
+    }
+  },
+  watch: {
+    activeModuleId () {
+      this.$refs.baseList.clearData()
+      for (let index in this.$refs.baseDetail) {
+        this.$refs.baseDetail[index].clearData()
+      }
     }
   }
 }

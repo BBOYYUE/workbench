@@ -57,10 +57,16 @@ export default {
       let apiUrl;
       let model;
       let form;
-      apiUrl = formData.apiUrl 
+      let relation_model;
+      let relation_filed;
+      let relation_model_id;
+      apiUrl = formData.apiUrl
       model = formData.model
       form = formData.form
-      context.commit(MutationType.STORE_DATA, { apiUrl, model, form });
+      relation_model = formData.relation_model ?? undefined
+      relation_filed = formData.relation_filed ?? undefined
+      relation_model_id = formData.relation_model_id ?? undefined
+      context.commit(MutationType.STORE_DATA, { apiUrl, model, form, relation_model, relation_model_id, relation_filed });
     }
   },
   mutations: {
@@ -94,6 +100,7 @@ export default {
     },
     [MutationType.UPDATE_DATA] (state, formData) {
       let { apiUrl, model, form } = formData
+      let that = this;
       this.commit('setFetching', true)
       axios.put(apiUrl, form).then((res) => {
         switch (model) {
@@ -101,38 +108,44 @@ export default {
             state.module = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
             break
           case 'product':
-            state.product = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
+            state.product = Object.assign({}, state.product, { [res.data.data.id]: res.data.data })
             break
           case 'project':
           default:
-            state.project = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
+            state.project = Object.assign({}, state.project, { [res.data.data.id]: res.data.data })
             break
         }
-        this.commit('setFetching', false)
+        that.commit('setFetching', false)
       }).catch((err) => {
         console.log(err)
       })
     },
-    [MutationType.STORE_DATA] (state, formData){
-      let { apiUrl, model, form } = formData
+    [MutationType.STORE_DATA] (state, formData) {
+      console.log(formData);
+      let { apiUrl, model, form, relation_model, relation_model_id, relation_filed } = formData
       this.commit('setFetching', true)
+      let that = this;
       axios.post(apiUrl, form).then((res) => {
+        console.log(model);
         switch (model) {
           case 'module':
             state.module = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
             break
           case 'product':
-            state.product = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
+            state.product = Object.assign({}, state.product, { [res.data.data.id]: res.data.data })
             break
           case 'project':
           default:
-            state.project = Object.assign({}, state.module, { [res.data.data.id]: res.data.data })
+            state.project = Object.assign({}, state.project, { [res.data.data.id]: res.data.data })
             break
         }
-        this.commit('setFetching', false)
+        if (relation_model && relation_filed) {
+          state[relation_model][relation_model_id][relation_filed].push(res.data.data.id)
+        }
+        that.commit('setFetching', false)
       }).catch((err) => {
         console.log(err)
       })
-    } 
+    }
   }
 }

@@ -8,42 +8,40 @@ export default {
   "apiUrl": "http://192.168.10.10/api/v2/modules",
   "uuid": uuidv4().substring(0, 5),
   "create": {
-    fields: [ 
+    fields: [
       {
         name: "name",
         alias: "模块名称",
         type: "text"
-      }, 
+      },
       {
-        name: "router",
-        alias: '英文名',
-        type: "text"
-      }, 
-      // {
-      //   name: "type",
-      //   alias: '模块类型',
-      //   type: "select"
-      // }
+        name: "product_id",
+        alias: '所属产品',
+        type: "select",
+        apiUrl: "http://192.168.10.10/api/v2/products",
+        filterField: "name",
+        relation_model: "product",
+        relation_namespace: "project"
+      }
     ],
   },
   "update": {
     fields: [
-        {
-          name: "name",
-          alias: "模块名称",
-          type: "text"
-        }, 
-        {
-          name: "router",
-          alias: '英文名',
-          type: "text"
-        }, 
-        // {
-        //   name: "type",
-        //   alias: '模块类型',
-        //   type: "select"
-        // }
-      ],
+      {
+        name: "name",
+        alias: "模块名称",
+        type: "text"
+      },
+      {
+        name: "product_id",
+        alias: '所属产品',
+        type: "select",
+        apiUrl: "http://192.168.10.10/api/v2/products",
+        filterField: "name",
+        relation_model: "product",
+        relation_namespace: "project"
+      }
+    ],
   },
   "list": {
     "actions": [
@@ -63,16 +61,40 @@ export default {
       {
         name: "uuid",
         alias: "uuid",
-        type: "text"
+        type: "text",
       },
+      {
+        name: "product_id",
+        alias: '所属产品',
+        type: "select",
+        apiUrl: "http://192.168.10.10/api/v2/products",
+        filterField: "name",
+        relation_model: "product",
+        relation_namespace: "project"
+      }
     ],
   },
   "details": {
-    "actions": [],
+    "actions": [
+      {
+        name: "编辑",
+        buttonType: "primary",
+        onclick: ["showInlineForm", "update"],
+      },
+    ],
     "fields": [{
       name: "name",
       alias: "模块名称",
       type: "buttonText",
+    },
+    {
+      name: "product_id",
+      alias: '所属产品',
+      type: "select",
+      apiUrl: "http://192.168.10.10/api/v2/products",
+      filterField: "name",
+      relation_model: "product",
+      relation_namespace: "project"
     }]
   },
   "hasMany": [{
