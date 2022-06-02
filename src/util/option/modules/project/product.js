@@ -8,6 +8,9 @@ export default {
   "apiUrl": "http://192.168.10.10/api/v2/products",
   "include": 'modules',
   "uuid": uuidv4().substring(0, 5),
+  "rule": {
+    'canShow': ["show_all_product", "show_product"]
+  },
   "create": {
     fields: [
       {
@@ -20,7 +23,9 @@ export default {
         alias: '产品类型',
         type: "select",
         apiUrl: "http://192.168.10.10/api/v2/getProductType",
-        filterField: "name"
+        filterField: "name",
+        relation_model: "productType",
+        relation_namespace: "dictionary"
       },
       {
         name: "project_id",
@@ -30,7 +35,8 @@ export default {
         filterField: "name",
         relation_model: "project",
         relation_namespace: "project"
-      }
+      },
+
     ],
   },
   "update": {
@@ -52,6 +58,8 @@ export default {
         type: "select",
         apiUrl: "http://192.168.10.10/api/v2/getProductType",
         filterField: "name",
+        relation_model: "productType",
+        relation_namespace: "dictionary"
       },
       {
         name: "project_id",
@@ -89,7 +97,9 @@ export default {
         alias: '产品类型',
         type: "select",
         apiUrl: "http://192.168.10.10/api/v2/getProductType",
-        filterField: "name"
+        filterField: "name",
+        relation_model: "productType",
+        relation_namespace: "dictionary"
       },
       {
         name: "project_id",
@@ -99,7 +109,22 @@ export default {
         filterField: "name",
         relation_model: "project",
         relation_namespace: "project"
-      }
+      },
+      {
+        name: "actions",
+        alias: '操作',
+        type: "actions",
+        align: "center",
+        actions: [
+          {
+            name: "delete",
+            alias: "删除",
+            type: "danger",
+            tip: "确认删除?",
+            onclick: ["deleteData", 'id'],
+          },
+        ]
+      },
     ],
   },
   "details": {
@@ -114,14 +139,16 @@ export default {
       {
         name: "name",
         alias: "产品名称",
-        type: "buttonText",
+        type: "text",
       },
       {
         name: "type",
         alias: '产品类型',
         type: "select",
         apiUrl: "http://192.168.10.10/api/v2/getProductType",
-        filterField: "name"
+        filterField: "name",
+        relation_model: "productType",
+        relation_namespace: "dictionary"
       },
       {
         name: "project_id",
@@ -137,5 +164,6 @@ export default {
     "page": 1,
     "module": 3
   }],
+
   "button-group": {}
 }

@@ -40,12 +40,13 @@ import BaseLayout from "../components/layout/base-layout.vue";
 import BaseList from "../module/base-list.vue";
 import BaseDetail from "../module/base-detail.vue";
 import * as MutationType from "../MutationType"
+
 export default {
   name: "homeComponent",
   components: { BaseLayout, BaseHeader, BaseLeftMenu, BaseList, BaseDetail },
   data () {
     return {
-      leftMenuCollapse: false
+      leftMenuCollapse: false,
     }
   },
   setup () {
@@ -65,15 +66,18 @@ export default {
       type: "option",
       value: entities.option,
     })
-    let assetEnities = this.$store.getters['asset/entities'];
+    this.$store.dispatch('dictionary/getDictionary')
+
   },
   computed: mapState({
+    isAuth: (state) => state.isAuth,
     module: (state) => state.option.module,
     page: (state) => state.option.page,
     option: (state) => state.option.option,
     activePageId: (state) => state.option.activePageId,
     activeModuleId: (state) => state.option.activeModuleId,
     fetching: (state) => state.fetching,
+    permisions: (state) => state.auth.user.permissions ? state.auth.user.permissions : [],
     activeModule () {
       return this.module && this.activeModuleId ? this.module[this.activeModuleId] : {};
     },
@@ -101,19 +105,39 @@ export default {
     leftMenu () {
       let list = [];
       if (!this.page[this.activePageId]) return;
+      let permisions = []
+      this.permisions.forEach(element => {
+        permisions.push(element.name)
+      });
+      permisions = new Set(permisions)
       for (let item in this.page[this.activePageId].modules) {
         let moduleId = this.page[this.activePageId].modules[item]
-        list.push({
-          id: this.module[moduleId].id,
-          name: this.module[moduleId].name,
-          uuid: this.module[moduleId].uuid,
-          icon: this.module[moduleId].icon,
-        })
+        if (this.module[moduleId].rule && this.module[moduleId].rule.canShow) {
+          let rule = this.module[moduleId].rule.canShow.filter((item) => {
+            return permisions.has(item)
+          })
+          if (rule.length > 0) {
+            list.push({
+              id: this.module[moduleId].id,
+              name: this.module[moduleId].name,
+              uuid: this.module[moduleId].uuid,
+              icon: this.module[moduleId].icon,
+            })
+          }
+        } else {
+          list.push({
+            id: this.module[moduleId].id,
+            name: this.module[moduleId].name,
+            uuid: this.module[moduleId].uuid,
+            icon: this.module[moduleId].icon,
+          })
+        }
       }
       return list
-    }
+    },
   }),
   methods: {
+
     menuItemClick (menuItem) {
       this.$store.commit('option/' + [MutationType.SET_MORE], {
         type: "activePageId",
@@ -135,10 +159,27 @@ export default {
     }
   },
   watch: {
+    isAuth (val) {
+      if (!val) {
+        let user = localStorage.getItem('user')
+        if (user && user != "undefined" && Object.keys(user).length > 0) {
+          console.log(user)
+          let auth = JSON.parse(user);
+          this.$store.commit('auth/' + MutationType.SET_ACCESS_TOKEN, auth.access_token)
+          this.$store.dispatch('auth/' + MutationType.AUTHENTICATION_UPDATE)
+          this.$store.commit('setFetching', false);
+        } else {
+          this.$message.error('登陆失效!')
+          this.$router.push('login')
+        }
+      } else {
+        this.$message.success('已登录!')
+      }
+    },
     stale (val) {
       if (val) {
         console.log("数据请求中")
-        // this.$message.success('正在刷新数据!')
+        // .success('正在刷新数据!')
       } else {
         console.log("数据请求完成")
       }

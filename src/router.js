@@ -1,6 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import homeComponent from "./pages/index.vue"
 import workEditorComponent from "./pages/work-editor.vue"
+import login from "./components/auth/login.vue"
+import phoneLogin from "./components/auth/phoneLogin.vue"
+import register from "./components/auth/register.vue"
+
 const isWeChat = /MicroMessenger/i.test(window.navigator.userAgent)
 const routes = [
   {
@@ -23,6 +27,18 @@ const routes = [
     meta: {
       auth: isWeChat,
     },
+  }, {
+    path: '/login',
+    name: 'login',
+    component: login,
+  }, {
+    path: '/phone-login',
+    name: 'phone-login',
+    component: phoneLogin,
+  }, {
+    path: '/register',
+    name: 'register',
+    component: register,
   }
 ]
 

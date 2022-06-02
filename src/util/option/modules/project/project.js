@@ -7,7 +7,10 @@ export default {
   "namespace": "project",
   "apiUrl": "http://192.168.10.10/api/v2/projects",
   "uuid": uuidv4().substring(0, 5),
-  "include": 'products',
+  "include": 'products,users',
+  "rule": {
+    'canShow': ["show_all_project", "show_project"]
+  },
   "sort": [
     {
       name: "创建日期",
@@ -92,7 +95,22 @@ export default {
         name: "slogan",
         alias: "slogan",
         type: "text"
-      }
+      },
+      {
+        name: "actions",
+        alias: '操作',
+        type: "actions",
+        align: "center",
+        actions: [
+          {
+            name: "delete",
+            alias: "删除",
+            type: "danger",
+            tip: "确认删除?",
+            onclick: ["deleteData", 'id'],
+          },
+        ]
+      },
     ],
   },
   "details": {
@@ -107,7 +125,7 @@ export default {
       {
         name: "name",
         alias: "项目名称",
-        type: "buttonText",
+        type: "text",
       },
       {
         name: "uuid",
@@ -134,6 +152,10 @@ export default {
   "hasMany": [{
     "page": 1,
     "module": 2
+  }],
+  "belongsToMany": [{
+    "page": 1,
+    "module": 7
   }],
   "button-group": [
     {

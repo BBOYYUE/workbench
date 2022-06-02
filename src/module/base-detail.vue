@@ -9,10 +9,16 @@
                 v-show="activeModule"
                 ref="baseList"></base-panel>
     <base-table v-for="item in hasMany"
-                ref="baseDetail"
-                type="detail"
+                ref="hasMany"
+                type="hasMany"
                 :key="item"
                 :option="this.getHasManyOption(item)">
+    </base-table>
+    <base-table v-for="item in belongsToMany"
+                ref="belongsToMany"
+                type="belongsToMany"
+                :key="item"
+                :option="this.getBelongsToManyOption(item)">
     </base-table>
   </div>
 </template>
@@ -40,9 +46,17 @@ export default {
       let hasMany = this.activeModule && this.activeModule.hasMany ? this.activeModule.hasMany : [];
       return hasMany
     },
+    belongsToMany () {
+      let belongsToMany = this.activeModule && this.activeModule.belongsToMany ? this.activeModule.belongsToMany : [];
+      return belongsToMany
+    }
   }),
   methods: {
     getHasManyOption (item) {
+      let { module } = item
+      return this.module[module]
+    },
+    getBelongsToManyOption (item) {
       let { module } = item
       return this.module[module]
     }
@@ -50,8 +64,11 @@ export default {
   watch: {
     activeModuleId () {
       this.$refs.baseList.clearData()
-      for (let index in this.$refs.baseDetail) {
-        this.$refs.baseDetail[index].clearData()
+      for (let index in this.$refs.hasMany) {
+        this.$refs.hasMany[index].clearData()
+      }
+      for (let index in this.$refs.belongsToMany) {
+        this.$refs.belongsToMany[index].clearData()
       }
     }
   }

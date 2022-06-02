@@ -7,6 +7,10 @@ export default {
   "namespace": "project",
   "apiUrl": "http://192.168.10.10/api/v2/modules",
   "uuid": uuidv4().substring(0, 5),
+  "include": 'works',
+  "rule": {
+    'canShow': ["show_all_module", "show_module"]
+  },
   "create": {
     fields: [
       {
@@ -27,6 +31,12 @@ export default {
   },
   "update": {
     fields: [
+      {
+        name: "id",
+        alias: "id",
+        type: "text",
+        disabled: true
+      },
       {
         name: "name",
         alias: "模块名称",
@@ -71,7 +81,23 @@ export default {
         filterField: "name",
         relation_model: "product",
         relation_namespace: "project"
-      }
+      },
+      {
+        name: "actions",
+        alias: '操作',
+        type: "actions",
+        align: "center",
+        actions: [
+          {
+            name: "delete",
+            alias: "删除",
+            type: "danger",
+            tip: "确认删除?",
+            onclick: ["deleteData", 'id'],
+            rule: {}
+          },
+        ]
+      },
     ],
   },
   "details": {
@@ -82,22 +108,24 @@ export default {
         onclick: ["showInlineForm", "update"],
       },
     ],
-    "fields": [{
-      name: "name",
-      alias: "模块名称",
-      type: "buttonText",
-    },
-    {
-      name: "product_id",
-      alias: '所属产品',
-      type: "select",
-      apiUrl: "http://192.168.10.10/api/v2/products",
-      filterField: "name",
-      relation_model: "product",
-      relation_namespace: "project"
-    }]
+    "fields": [
+      {
+        name: "name",
+        alias: "模块名称",
+        type: "text",
+      },
+      {
+        name: "product_id",
+        alias: '所属产品',
+        type: "select",
+        apiUrl: "http://192.168.10.10/api/v2/products",
+        filterField: "name",
+        relation_model: "product",
+        relation_namespace: "project"
+      }
+    ]
   },
-  "hasMany": [{
+  "belongsToMany": [{
     "page": 1,
     "module": 5
   }],

@@ -1,13 +1,14 @@
 <template>
   <el-card>
+    <!--顶部功能区-->
     <template #header>
       <div class="flex flex-row justify-between">
         <div>
           <span class="text-lg font-semibold">{{ name }}列表</span>
         </div>
 
-        <!-- <div class="flex flex-row space-x-10">
-          <div class="flex flex-row space-x-2">
+        <div class="flex flex-row space-x-10">
+          <!-- <div class="flex flex-row space-x-2">
             <el-input v-model="input3"
                       placeholder="请输入搜索关键字"
                       class="input-with-select">
@@ -38,37 +39,61 @@
               <el-option label="uuid"
                          value="uuid" />
             </el-select>
+          </div> -->
+          <div class="flex flex-row space-x-2">
+            <el-button v-for="item in actions"
+                       :type="item.buttonType"
+                       :key="item"
+                       v-show="item.canShow?canShow(item.canShow):true"
+                       @click="onTabeleActionClick(item.onclick)">{{ item.name }}</el-button>
           </div>
-          <el-button v-for="item in actions"
-                     :type="item.buttonType"
-                     :key="item"
-                     @click="onTabeleActionClick(item.onclick)">{{ item.name }}</el-button>
-        </div> -->
+        </div>
         <!-- <button-group></button-group> -->
       </div>
     </template>
     <el-table :data="tableData"
               v-show="fields"
-              ref="baseTable">
+              ref="baseTable"
+              :max-height="innerHeight - 250">
       <el-table-column v-for="item in fields"
                        :key="item.name"
-                       :label="item.alias">
+                       :label="item.alias"
+                       :align="item.align??'left'">
         <template #default="scope">
-          <div v-show="item.type == 'text'"
+          <div v-if="item.type == 'text'"
                @click="this.onTableItemClick(item.onclick, scope.row)">
             {{ scope.row[item.name] }}
           </div>
-          <el-button v-show="item.type == 'buttonText'"
+          <div v-else-if="item.type == 'select'">
+            {{getSelectData(item, scope.row[item.name])}}
+          </div>
+          <div v-else-if="item.type == 'actions'">
+            <el-popconfirm :title="aciton.tip"
+                           v-for="aciton in item.actions"
+                           :key="aciton"
+                           confirmButtonText="确定"
+                           cancelButtonText="取消"
+                           @confirm="this.onTableItemClick(aciton.onclick, scope.row)">
+              <template #reference>
+                <el-button :type="aciton.type"
+                           v-show="aciton.canShow?canShow(aciton.canShow):true">
+                  {{aciton.alias}}
+                </el-button>
+              </template>
+            </el-popconfirm>
+          </div>
+          <el-button v-else-if="item.type == 'buttonText'"
                      type="text"
                      @click="this.onTableItemClick(item.onclick, scope.row)">{{ scope.row[item.name] }}</el-button>
         </template>
       </el-table-column>
     </el-table>
 
+    <!--新增表单-->
     <el-dialog v-model="dialogVisible"
                width="500px"
                :title="name">
-      <el-form>
+      <el-form v-if="dialogFieldType == 'create'">
         <div v-for="item in dialogField"
              :key="item">
           <el-form-item :label="item.alias + ':'"
@@ -103,10 +128,37 @@
           </el-form-item>
         </div>
       </el-form>
+      <el-form v-else>
+        <el-form-item :label="'绑定'+this.option.name + '数据:'">
+          <el-select class="w-full"
+                     v-model="form.relation_model_id"
+                     filterable
+                     remote
+                     :remote-method="
+                                (keyword) => {
+                                    // 这里之所以这样写, 是因为当前作用域既有 apiurl 又有keyword
+                                    this.selectRemoteMethod(
+                                        'bind',
+                                        this.option.apiUrl,
+                                        'name',
+                                        keyword
+                                    );
+                                }
+                            "
+                     placeholder="请输入"
+                     clearable
+                     no-data-text="没有数据">
+            <el-option v-for="item in selectOption.bind"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
       <template #footer>
         <div>
           <el-button @click="this.dialogVisible = false">取消</el-button>
-          <el-button @click="this.storeData()"
+          <el-button @click="dialogFieldType == 'create'?this.storeData():this.bindData()"
                      type="success">保存</el-button>
         </div>
       </template>
@@ -121,9 +173,31 @@ import axios from "axios";
 export default {
   props: { option: Object, type: String },
   computed: {
+    http () {
+      let instance = axios.create({
+        timeout: 1000 * 12,
+      })
+      instance.interceptors.request.use((req) => {
+        // if (Object.keys(this.loadingAPI).length === 0) {
+        //   store.commit('SHOW_LOADING')
+        // }
+        req.headers.Authorization = 'Bearer ' + this.$store.state.auth.access_token
+        return req
+      })
+      instance.interceptors.response.use((res) => {
+        // if (Object.keys[this.loadingAPI].length === 0) {
+        //   store.commit('HIDE_LOADING')
+        // }
+        return res
+      })
+      return instance
+    },
     /**
      * 当前组件展示的 模块配置项开始
      */
+    innerHeight () {
+      return window.innerHeight
+    },
     fetching () {
       return this.$store.state.fetching;
     },
@@ -194,9 +268,57 @@ export default {
     },
 
     /**
+     * belongsToMany
+     */
+
+    belongsToMany () {
+      let list = [];
+      if (this.activeBelongsToMany) {
+        /**
+         * 这个的 this.model 是当前模块的英文名, 当前 table 展示的数据的模块名
+         */
+        if (this.activeModelData[pluralize(this.model)]) {
+          /**
+           * 这里的 filters 是当前模块的可关联项列表
+           * 这里的pluralize是名词的复数形式
+           */
+          let filters = this.activeModelData[pluralize(this.model)];
+          for (let index in filters) {
+            /**
+             * 这里拿到关联项
+             */
+            if (this.storeState[this.model][filters[index]]) {
+              let data =
+                this.storeState[this.model][filters[index]];
+              /**
+               * 这里校验了一下 hasMany 的过滤逻辑
+               */
+              for (let item in this.activeBelongsToMany) {
+                let option = this.activeBelongsToMany[item];
+
+                /**
+                 * 如果当前循环项不是当前模块的配置项, 那么跳过
+                 */
+                if (option.module != this.optionId) continue;
+
+                if (!option.canShow) {
+                  list.push(data);
+                } else {
+                  if (this.canShow(option.canShow)) {
+                    list.push(data);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return list;
+    },
+    /**
      * hasmany
      */
-    hasManyData () {
+    hasMany () {
       let list = [];
       if (this.activeHasMany) {
         /**
@@ -229,7 +351,7 @@ export default {
                 if (!option.canShow) {
                   list.push(data);
                 } else {
-                  if (this.canShow(option.canShow, data)) {
+                  if (this.canShow(option.canShow)) {
                     list.push(data);
                   }
                 }
@@ -307,6 +429,16 @@ export default {
         ? this.activeModule.hasMany
         : [];
     },
+    activeBelongsToMany () {
+      return this.activeModule && this.activeModule.belongsToMany
+        ? this.activeModule.belongsToMany
+        : "";
+    },
+    activeName () {
+      return this.activeModule && this.activeModule.name
+        ? this.activeModule.name
+        : "";
+    },
     activeNamespace () {
       return this.activeModule && this.activeModule.namespace
         ? this.activeModule.namespace
@@ -315,6 +447,11 @@ export default {
     activeModel () {
       return this.activeModule && this.activeModule.model
         ? this.activeModule.model
+        : "";
+    },
+    activeApiUrl () {
+      return this.activeModule && this.activeModule.apiUrl
+        ? this.activeModule.apiUrl
         : "";
     },
     activeEntites () {
@@ -374,9 +511,21 @@ export default {
       this.modelDataType = ""
       this.selectOption = {}
     },
+    getSelectData (item, value) {
+      let relation_namespace = item.relation_namespace ?? undefined
+      let relation_model = item.relation_model ?? undefined
+      let req = "暂无";
+      if (relation_namespace && relation_model) {
+        let data = this.$store.state[relation_namespace][relation_model][value] ?? undefined
+        if (data) {
+          req = data.name
+        }
+      }
+      return req
+    },
     selectRemoteMethod (name, apiUrl, filterField, keyword) {
       this.selectOption[name] = [];
-      axios
+      this.http
         .get(apiUrl + "?filter[" + filterField + "]=" + keyword)
         .then((res) => {
           if (res.data.data) {
@@ -389,6 +538,7 @@ export default {
           }
         });
     },
+
     onTableItemClick (onclick, tableItem) {
       if (!onclick) return;
       if (isArray(onclick[0])) {
@@ -432,6 +582,81 @@ export default {
       this.dialogFieldType = field;
       this.dialogVisible = true;
     },
+    deleteData (key, item) {
+      let that = this;
+      let formData = {
+        form: {
+          id: item.id
+        },
+        apiUrl: this.option.apiUrl + "/" + item.id,
+        model: this.option.model,
+      };
+      if (this.option.model != this.activeModel || this.modelDataType === 'selfCorrelationDataDetail') {
+        formData.relation_namespace = this.activeNamespace
+        formData.relation_model = this.activeModel
+        formData.relation_field = pluralize(this.option.model)
+        formData.relation_model_id = this.activeDataId
+      }
+
+
+      this.$store.dispatch(this.namespace + '/' + MutationType.DELETE_DATA, formData).then(() => {
+        that.$message.success("删除成功!")
+      }).catch(() => {
+        that.$message.success("删除失败!")
+      });
+    },
+
+    /**
+     * 这里需要注意 form 的 relation_model 系列属性和  formData 中的 relation_model 系列属性的含义不同,
+     * form 中的 id 是父项, relation_model 系列为子项,  formData 中的 relation_model 为父项的内容. 
+     */
+    unBindData (key, data) {
+      let that = this;
+      this.form.action_type = 'unBind'
+      this.form.relation_model = this.model
+      this.form.relation_model_id = data.id
+      this.form.model = this.activeModel
+      this.form.id = this.activeDataId
+      let formData = {
+        form: this.form,
+        apiUrl: this.activeApiUrl,
+        model: this.activeModel,
+        relation_namespace: this.activeNamespace,
+        relation_model: this.activeModel,
+        relation_field: pluralize(this.option.model),
+        relation_model_id: this.activeDataId
+      };
+      this.$store.dispatch(this.activeNamespace + '/' + MutationType.UPDATE_DATA, formData).then(() => {
+        that.form = {};
+        that.dialogVisible = false
+        that.$message.success("解绑成功!")
+      }).catch(() => {
+        that.$message.success("解绑失败!")
+      });
+    },
+    bindData () {
+      let that = this;
+      this.form.action_type = 'bind'
+      this.form.relation_model = this.model
+      this.form.model = this.activeModel
+      this.form.id = this.activeDataId
+      let formData = {
+        form: this.form,
+        apiUrl: this.activeApiUrl,
+        model: this.activeModel,
+        relation_namespace: this.activeNamespace,
+        relation_model: this.activeModel,
+        relation_field: pluralize(this.option.model),
+        relation_model_id: this.activeDataId
+      };
+      this.$store.dispatch(this.activeNamespace + '/' + MutationType.UPDATE_DATA, formData).then(() => {
+        that.form = {};
+        that.dialogVisible = false
+        that.$message.success("绑定成功!")
+      }).catch(() => {
+        that.$message.success("绑定失败!")
+      });
+    },
     storeData () {
       let that = this;
       let formData = {
@@ -439,9 +664,10 @@ export default {
         apiUrl: this.dialogApi ? this.dialogApi : this.option.apiUrl,
         model: this.option.model,
       };
-      if (this.option.model != this.activeModel) {
+      if (this.option.model != this.activeModel || this.modelDataType === 'selfCorrelationDataDetail') {
+        formData.relation_namespace = this.activeNamespace
         formData.relation_model = this.activeModel
-        formData.relation_filed = pluralize(this.option.model)
+        formData.relation_field = pluralize(this.option.model)
         formData.relation_model_id = this.activeDataId
       }
       this.$store
@@ -456,22 +682,29 @@ export default {
           that.$message.success("保存失败!")
         });
     },
-    canShow (canShow, data) {
-      let judge = false;
-      for (let item in canShow) {
-        let canShow = canShow[item];
-        let key = canShow[0];
-        let rule = canShow[1];
-        let val = canShow[2];
-        switch (rule) {
-          case "neq":
-            judge = data[key] != val;
-            break;
-          case "eq":
-          default:
-            judge = data[key] == val;
-            break;
+    checkCanShow (key, rule, val) {
+      let judge = true;
+      switch (rule) {
+        case "neq":
+          judge = judge && this[key] != val;
+          break;
+        case "eq":
+        default:
+          judge = judge && this[key] == val;
+          break;
+      }
+      return judge
+    },
+
+    canShow (canShow) {
+      if (!canShow) return true;
+      let judge = true;
+      if (Array.isArray(canShow[0])) {
+        for (let item in canShow) {
+          judge = judge && this.checkCanShow(canShow[item][0], canShow[item][1], canShow[item][2])
         }
+      } else {
+        judge = judge && this.checkCanShow(canShow[0], canShow[1], canShow[2])
       }
       return judge;
     },
@@ -483,7 +716,7 @@ export default {
       switch (modelDataType) {
         case "selfCorrelationDataDetail":
         case "selfCorrelationDataList":
-        case "hasManyData":
+        case "hasMany":
         case "selfData":
         default:
           formData.include = include;
@@ -501,7 +734,7 @@ export default {
       if (this.activeModule && this.activeModule.model) {
         if (this.activeModule.model == this.model) {
           if (this.isSelfCorrelation) {
-            if (this.type == "detail") {
+            if (this.type == "hasMany") {
               modelDataType = "selfCorrelationDataDetail";
             } else {
               modelDataType = "selfCorrelationDataList";
@@ -510,10 +743,9 @@ export default {
             modelDataType = "selfData";
           }
         } else {
-          modelDataType = "hasManyData";
+          modelDataType = this.type;
         }
       }
-      console.log(modelDataType);
       this.modelDataType = modelDataType;
     }
   },
@@ -538,7 +770,7 @@ export default {
          */
         setTimeout(function () {
           that.modelData = that[that.modelDataType];
-        }, 100);
+        }, 200);
       }
     },
     modelDataKey (val) {

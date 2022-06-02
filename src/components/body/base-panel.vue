@@ -65,7 +65,15 @@
         <el-descriptions-item v-for="item in fields"
                               :key="item.name"
                               :label="item.alias">
-          {{ panelData[item.name] }}
+          <div v-if="item.type == 'text'">
+            {{ panelData[item.name] }}
+          </div>
+          <div v-else-if="item.type == 'select'">
+            {{ this.getSelectData(item, panelData[item.name])}}
+          </div>
+          <div v-else-if="item.type == 'buttonText'">
+            <el-button type="text">{{ panelData[item.name] }}</el-button>
+          </div>
         </el-descriptions-item>
       </el-descriptions>
     </div>
@@ -81,6 +89,25 @@ export default {
   props: { option: Object },
   setup () { },
   computed: {
+    http () {
+      let instance = axios.create({
+        timeout: 1000 * 12,
+      })
+      instance.interceptors.request.use((req) => {
+        // if (Object.keys(this.loadingAPI).length === 0) {
+        //   store.commit('SHOW_LOADING')
+        // }
+        req.headers.Authorization = 'Bearer ' + this.$store.state.auth.access_token
+        return req
+      })
+      instance.interceptors.response.use((res) => {
+        // if (Object.keys[this.loadingAPI].length === 0) {
+        //   store.commit('HIDE_LOADING')
+        // }
+        return res
+      })
+      return instance
+    },
     info () {
       return { name: "name", label: "项目名称" };
     },
@@ -154,9 +181,12 @@ export default {
     },
   },
   methods: {
+    /**
+     * 从远程服务器获取下拉选项
+     */
     selectRemoteMethod (name, apiUrl, filterField, keyword) {
       this.selectOption[name] = []
-      axios
+      this.http
         .get(apiUrl + "?filter[" + filterField + "]=" + keyword)
         .then((res) => {
           if (res.data.data) {
@@ -168,6 +198,21 @@ export default {
             });
           }
         });
+    },
+    /**
+     * 下拉字段获取数据实际的值
+     */
+    getSelectData (item, value) {
+      let relation_namespace = item.relation_namespace ?? undefined
+      let relation_model = item.relation_model ?? undefined
+      let req = "暂无";
+      if (relation_namespace && relation_model) {
+        let data = this.$store.state[relation_namespace][relation_model][value] ?? undefined
+        if (data) {
+          req = data.name
+        }
+      }
+      return req
     },
     onPanelkActionClick (onclick) {
       if (!onclick) return;
@@ -197,16 +242,15 @@ export default {
             let relation_namespace = this.inlineField[item].relation_namespace ?? undefined
             let relation_model = this.inlineField[item].relation_model ?? undefined
             if (relation_namespace && relation_model) {
-              let data = this.$store.state[relation_namespace][relation_model][this.activeDataId] ?? undefined
+              let data = this.$store.state[relation_namespace][relation_model][this.form[this.inlineField[item].type]] ?? undefined
               if (data) {
-                this.selectOption[field] = [{
+                this.selectOption[that.inlineField[item].name] = [{
                   value: data.id,
                   label: data.name
                 }]
-                continue;
               }
             }
-            axios
+            this.http
               .get(this.inlineField[item].apiUrl + "?filter[id]=" + this.form[this.inlineField[item].name])
               .then((res) => {
                 if (res.data.data) {
@@ -266,7 +310,7 @@ export default {
       inlineVisible: false,
       form: {},
       inlineFormType: "",
-      selectOption: {}
+      selectOption: {},
     };
   },
 };
