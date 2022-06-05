@@ -11,9 +11,20 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/dist/index.css'
 import Hammer from 'hammerjs'
 import 'default-passive-events'
+import VueCodemirror from 'vue-codemirror'
+import { basicSetup } from '@codemirror/basic-setup'
 
 const app = createApp(App)
 
+app.use(VueCodemirror, {
+  // optional default global options
+  autofocus: true,
+  disabled: false,
+  indentWithTab: true,
+  tabSize: 4,
+  placeholder: '在这里输入',
+  extensions: [basicSetup]
+})
 /**
  * 重写了 localStorage
  */
