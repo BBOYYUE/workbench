@@ -31,6 +31,7 @@
     "vue": "^3.2.13",
     "vue-axios": "^3.4.0",
     "vue-codemirror": "^5.0.1",
+    "vue-grid-layout": "^2.3.12",
     "vue-json-editor": "^1.4.3",
     "vue-marquee-text-component": "^2.0.1",
     "vue-router": "^4.0.12",

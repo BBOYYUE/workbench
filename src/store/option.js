@@ -3,6 +3,7 @@ import * as MutationType from "../MutationType"
 import { v4 as uuidv4 } from "uuid";
 import project from "../util/option/pages/project"
 import editor from '@/util/option/pages/editor';
+
 const module = new schema.Entity('module')
 const page = new schema.Entity('page', {
   modules: [module],
