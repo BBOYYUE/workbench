@@ -1,4 +1,5 @@
 import * as MutationType from '../MutationType'
+import { ElMessage } from 'element-plus'
 import axios from 'axios'
 
 let http = {}
@@ -33,9 +34,19 @@ export default {
     expires_in: '',
     access_token: '',
     verification_key: '',
-    isLogin: false,
+    isLogin: true,
   },
-  getters: {},
+  getters: {
+    permissionList (state) {
+      let permisions = [];
+      if (!state.user || state.user.length == 0) return new Set()
+      state.user.permissions.forEach((element) => {
+        permisions.push(element.name);
+      });
+      permisions = new Set(permisions);
+      return permisions;
+    }
+  },
   modules: {},
   actions: {
 
@@ -213,19 +224,28 @@ export default {
                 })
               )
             }
+            ElMessage({
+              message: "登陆成功!",
+              type: "success"
+            })
             this.commit('setAuth', true)
           } else if (res.data.code) {
-            state.code = res.data.code
-            state.msg = res.data.msg
+            ElMessage({
+              message: res.data.msg,
+              type: "error"
+            })
           } else {
-            state.msg = res.data.message
+            ElMessage({
+              message: res.data.message,
+              type: "error"
+            })
           }
         })
         .catch((err) => {
-          console.log(err)
-          if (err.response.data) {
-            console.log(err.response.data)
-          }
+          ElMessage({
+            message: "网络链接超时",
+            type: "error"
+          })
         })
     },
     [MutationType.VERIFICATION_CODES] (state, data) {

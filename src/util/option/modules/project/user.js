@@ -38,6 +38,12 @@ export default {
   "update": {
     fields: [
       {
+        name: "id",
+        alias: "id",
+        type: "text",
+        disabled: true
+      },
+      {
         name: "name",
         alias: "用户名",
         type: "text"

@@ -195,7 +195,9 @@ export default {
         name: "preview",
         alias: "预览"
       }
-    ]
+    ],
+
+
   },
   footer: {
     actions: [

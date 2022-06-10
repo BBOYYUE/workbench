@@ -13,6 +13,8 @@
           <el-button v-for="item in actions"
                      :type="item.buttonType"
                      :key="item"
+                     :disabled="item.hasRule?!hasRule(item.hasRule, panelData):false"
+                     v-show="item.canShow?canShow(item.canShow):true"
                      @click="onPanelkActionClick(item.onclick)">{{ item.name }}</el-button>
         </div>
       </div>
@@ -111,6 +113,12 @@ export default {
     info () {
       return { name: "name", label: "项目名称" };
     },
+    auth () {
+      return this.$store.state.auth
+    },
+    permissionList () {
+      return this.$store.getters['auth/permissionList'] ?? new Set([])
+    },
     namespace () {
       return this.option && this.option.namespace
         ? this.option.namespace
@@ -181,6 +189,58 @@ export default {
     },
   },
   methods: {
+    isOwner (val, data) {
+      if (!(this.auth && this.auth.user)) return false == val;
+      let judge = data.user_id == this.auth.user.id
+      return judge == val
+    },
+    checkCanShow (key, rule, val, data) {
+      let judge = true;
+      if (!this[key]) return
+      switch (rule) {
+        case "neq":
+          judge = judge && this[key] != val;
+          break;
+        case "eq":
+          judge = judge && this[key] == val;
+          break;
+        case 'in':
+          judge = judge && this[key].include(val);
+          break;
+        case 'nin':
+          judge = judge && !this[key].include(val);
+          break;
+        case 'has':
+          judge = judge && this[key].has(val);
+          break;
+        case 'nhas':
+          judge = judge && !this[key].has(val);
+          break;
+        case 'method':
+          judge = judge && this[key](val, data);
+          break;
+        default:
+          judge = judge && this[key] == val;
+          break;
+      }
+      return judge
+    },
+    hasRule (canShow, data = {}) {
+      return this.canShow(canShow, data)
+    },
+    canShow (canShow, data = {}) {
+      if (!canShow) return true;
+      let judge = true;
+      if (Array.isArray(canShow[0])) {
+        for (let item in canShow) {
+          judge = judge && this.checkCanShow(canShow[item][0], canShow[item][1], canShow[item][2], data)
+        }
+      } else {
+        judge = judge && this.checkCanShow(canShow[0], canShow[1], canShow[2], data)
+      }
+      return judge;
+    },
+
     /**
      * 从远程服务器获取下拉选项
      */

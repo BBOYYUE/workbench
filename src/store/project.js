@@ -2,6 +2,7 @@ import { normalize, schema } from 'normalizr'
 import * as MutationType from "../MutationType"
 import { v4 as uuidv4 } from "uuid";
 import axios from 'axios'
+import { formProps } from 'element-plus';
 
 
 let http = {}
@@ -80,6 +81,7 @@ export default {
     activeProductId: 1,
     activeFoderId: 0,
     activeAssetId: 0,
+    paginate: {}
   },
   getters: {},
   actions: {
@@ -89,15 +91,15 @@ export default {
       let model;
       apiUrl = formData.apiUrl
       model = formData.model
-      if (formData.include || formData.filter || formData.sort || formData.fields || formData.append) {
-        apiUrl = apiUrl + "?1=1"
+      if (formData.include || formData.filter || formData.sort || formData.fields || formData.append || formData.page) {
+        apiUrl = apiUrl + "?page=" + formData.page
         apiUrl = formData.include ? apiUrl + "&include=" + formData.include : apiUrl
         apiUrl = formData.filter ? apiUrl + "&filter=" + formData.filter : apiUrl
         apiUrl = formData.sort ? apiUrl + "&sort=" + formData.sort : apiUrl
         apiUrl = formData.fields ? apiUrl + "&fields=" + formData.fields : apiUrl
         apiUrl = formData.append ? apiUrl + "&append=" + formData.append : apiUrl
       }
-      context.commit(MutationType.GET_LIST, { apiUrl, model });
+      context.commit(MutationType.GET_LIST, { apiUrl, model, include: formData.include });
     },
 
     [MutationType.UPDATE_DATA] (context, formData) {
@@ -160,15 +162,27 @@ export default {
       state[data.type] = data.value
     },
     [MutationType.GET_LIST] (state, formData) {
-      let { apiUrl, model } = formData
+      let { apiUrl, model, include } = formData
       /**
        * 这里很神奇的可以直接拿到 store 对象
        */
+      let entities
       this.commit('setFetching', true)
       http.get(apiUrl).then((res) => {
+        state.paginate = Object.assign({}, state.paginate, {
+          [model]: {
+            total: res.data.total,
+            current_page: res.data.current_page,
+            per_page: res.data.per_page,
+            last_page: res.data.last_page,
+            form: res.data.form,
+            to: res.data.to,
+          }
+        })
         switch (model) {
           case 'work':
-            state.work = Object.assign({}, state.work, normalize(res.data.data, workList).entities.works)
+            entities = normalize(res.data.data, workList).entities;
+            state.work = Object.assign({}, state.work, entities.works)
             break
           case 'folder':
             state.folder = Object.assign({}, state.folder, normalize(res.data.data, folderList).entities.folders)
@@ -183,7 +197,9 @@ export default {
             state.user = Object.assign({}, state.user, normalize(res.data.data, userList).entities.user)
             break;
           case 'role':
-            state.role = Object.assign({}, state.role, normalize(res.data.data, roleList).entities.role)
+            entities = normalize(res.data.data, roleList).entities;
+            state.permission = Object.assign({}, state.permission, entities.permission)
+            state.role = Object.assign({}, state.role, entities.role)
             break;
           case 'permission':
             state.permission = Object.assign({}, state.permission, normalize(res.data.data, permissionList).entities.permission)
@@ -195,7 +211,8 @@ export default {
         }
         this.commit('setFetching', false)
       }).catch((err) => {
-        if (err.response.data) {
+        console.log(err)
+        if (err.response && err.response.data) {
           if (err.response.status === 401) {
             /**
              * 登陆失效
@@ -374,6 +391,9 @@ export default {
         }
       })
     },
+    setPaginate (state, paginate) {
+      state.paginate = Object.assign({}, state.paginate, paginate)
+    }
   },
 
 }

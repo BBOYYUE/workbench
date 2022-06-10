@@ -81,6 +81,7 @@ export default {
         name: "创建目录",
         buttonType: "success",
         onclick: ["showDialogForm", "create"],
+        canShow: ['type', 'neq', 'list']
       },
     ],
     "fields": [
@@ -102,6 +103,7 @@ export default {
             type: "danger",
             tip: "确认删除?",
             onclick: ["deleteData", 'id'],
+            hasRule: [['permissionList', 'has', 'delete_asset'], ['isOwner', 'method', true]]
           },
         ]
       },

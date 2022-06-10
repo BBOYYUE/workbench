@@ -2,33 +2,38 @@
   <div class="flex flex-row justify-center h-screen w-screen absolute top-0"
        style="background:#1F2937;">
     <div class="flex flex-col justify-center">
-      <el-card class="w-96">
-
-        <h1 class="text-3xl font-bold">登录页</h1>
-        <el-form label-position="top"
-                 :model="form"
-                 :rules="rules"
-                 ref="loginFormRef">
-          <el-form-item label="手机号码:"
-                        prop="username">
-            <el-input v-model="form.username"></el-input>
-          </el-form-item>
-          <el-form-item label="密码:"
-                        prop="password">
-            <el-input type="password"
-                      v-model="form.password"></el-input>
-          </el-form-item>
-        </el-form>
-        <el-form-item>
-          <el-button type="primary"
-                     class="w-full"
-                     @click="this.login('loginFormRef')">登录</el-button>
-        </el-form-item>
-        <div class="flex flex-row justify-between">
-          <el-button type="text"
-                     @click="this.$router.push('/phone-login')">手机验证码登录</el-button>
-          <el-button type="text"
-                     @click="this.$router.push('/register')">注册</el-button>
+      <el-card class="w-96 ">
+        <div class="flex flex-col space-y-5">
+          <div>
+            <h1 class="text-3xl font-bold">登录页</h1>
+          </div>
+          <div>
+            <el-form label-position="top"
+                     :model="form"
+                     :rules="rules"
+                     ref="loginFormRef">
+              <el-form-item label="手机号码:"
+                            prop="username">
+                <el-input v-model="form.username"></el-input>
+              </el-form-item>
+              <el-form-item label="密码:"
+                            prop="password">
+                <el-input type="password"
+                          v-model="form.password"></el-input>
+              </el-form-item>
+            </el-form>
+            <el-form-item>
+              <el-button type="primary"
+                         class="w-full"
+                         @click="this.login('loginFormRef')">登录</el-button>
+            </el-form-item>
+            <div class="flex flex-row justify-between">
+              <el-button type="text"
+                         @click="this.$router.push('/phone-login')">手机验证码登录</el-button>
+              <el-button type="text"
+                         @click="this.$router.push('/register')">注册</el-button>
+            </div>
+          </div>
         </div>
       </el-card>
     </div>
@@ -41,6 +46,9 @@ import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   components: { ElCard, ElForm, ElFormItem, ElInput, ElButton },
   name: "base-login",
+  mounted () {
+    this.$store.commit('setAuth', false)
+  },
   data () {
     return {
       form: {
@@ -85,6 +93,7 @@ export default {
   },
   watch: {
     isAuth (val) {
+      console.log(val)
       if (val === true) {
         let redirect = this.$route.query.redirect;
         if (redirect) {

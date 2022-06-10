@@ -30,19 +30,37 @@
     <template v-slot:content>
       <div class="w-full h-full flex flex-col"
            id="content">
-        <div class="w-full h-8 bg-gray-700 flex flex-row justify-end">
-          <div v-for="item in this.moduleContent.actions"
-               :key="item"
-               class="h-full flex flex-col justify-center mx-1">
-            <div class="p-1 rounded-md text-gray-500"
-                 style="font-size: 0.5rem"
-                 @click="setActiveContent(item)"
-                 :class="
+        <div class="w-full h-8 bg-gray-700 flex flex-row justify-between">
+          <div class="flex flex-row">
+            <div v-for="item in this.moduleContent.actions"
+                 :key="item"
+                 class="h-full flex flex-col justify-center mx-1">
+              <div class="p-1 rounded-md text-gray-500"
+                   style="font-size: 0.5rem"
+                   @click="setActiveContent(item)"
+                   :class="
                                 activeContent.name == item.name
                                     ? 'text-gray-300'
                                     : 'text-gray-500'
                             ">
-              {{ item.alias }}
+                {{ item.alias }}
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-row">
+            <div v-for="item in this.moduleContent.actions"
+                 :key="item"
+                 class="h-full flex flex-col justify-center mx-1">
+              <div class="p-1 rounded-md text-gray-500"
+                   style="font-size: 0.5rem"
+                   @click="setActiveContent(item)"
+                   :class="
+                                activeContent.name == item.name
+                                    ? 'text-gray-300'
+                                    : 'text-gray-500'
+                            ">
+                {{ item.alias }}
+              </div>
             </div>
           </div>
         </div>
@@ -50,10 +68,10 @@
           <vue-codemirror v-model="code" />
         </div>
         <div v-show="activeContent.name === 'visualizationEditor'">
-          <visualizationEditor></visualizationEditor>
+          <visualization-editor></visualization-editor>
         </div>
         <div v-show="activeContent.name === 'preview'">
-          <preview></preview>
+          <preview-editor></preview-editor>
         </div>
       </div>
     </template>
@@ -181,6 +199,9 @@ import * as MutationType from "../MutationType";
 import "./work-editor.scss";
 import UnKnownFile from '@/components/icon/unKnownFile.vue';
 import { GridLayout, GridItem } from 'vue-grid-layout';
+import PreviewEditor from "@/components/editor/prview-editor.vue";
+import visualizationEditor from "@/components/editor/visualization-editor.vue"
+
 // import { normalize, schema } from 'normalizr'
 
 // let forms = new schema.Entity('forms')
@@ -199,6 +220,8 @@ export default {
   components: {
     baseEditor,
     UnKnownFile,
+    PreviewEditor,
+    visualizationEditor,
     GridLayout,
     GridItem
   },

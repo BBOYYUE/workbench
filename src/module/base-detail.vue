@@ -8,13 +8,15 @@
     <base-panel :option="activeModule"
                 v-show="activeModule"
                 ref="baseList"></base-panel>
-    <base-table v-for="item in hasMany"
+    <base-table v-show="hasMany && hasMany.length > 0"
+                v-for="item in hasMany"
                 ref="hasMany"
                 type="hasMany"
                 :key="item"
                 :option="this.getHasManyOption(item)">
     </base-table>
-    <base-table v-for="item in belongsToMany"
+    <base-table v-show="belongsToMany && belongsToMany.length > 0"
+                v-for="item in belongsToMany"
                 ref="belongsToMany"
                 type="belongsToMany"
                 :key="item"

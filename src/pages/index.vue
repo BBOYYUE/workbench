@@ -68,13 +68,14 @@ export default {
   computed: mapState({
     isAuth: (state) => state.isAuth,
     module: (state) => state.option.module,
+    paginate: (state) => state.project.paginate,
     page: (state) => state.option.page,
     option: (state) => state.option.option,
     activePageId: (state) => state.option.activePageId,
     activeModuleId: (state) => state.option.activeModuleId,
     fetching: (state) => state.fetching,
     permisions: (state) =>
-      state.auth.user.permissions ? state.auth.user.permissions : [],
+      state.auth.user && state.auth.user.permissions ? state.auth.user.permissions : [],
     activeModule () {
       return this.module && this.activeModuleId
         ? this.module[this.activeModuleId]
@@ -115,8 +116,7 @@ export default {
         let moduleId = this.page[this.activePageId].modules[item];
         if (
           this.module[moduleId].rule &&
-          this.module[moduleId].rule.canShow &&
-          this.$store.state.auth.user.id != 1
+          this.module[moduleId].rule.canShow
         ) {
           let rule = this.module[moduleId].rule.canShow.filter(
             (item) => {
@@ -145,6 +145,7 @@ export default {
   }),
   methods: {
     menuItemClick (menuItem) {
+
       this.$store.commit("option/" + [MutationType.SET_MORE], {
         type: "activePageId",
         value: menuItem.id,

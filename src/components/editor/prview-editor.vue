@@ -1,5 +1,7 @@
 <template>
-  <div></div>
+  <div>
+    预览预览
+  </div>
 </template>
 <script>
 export default {

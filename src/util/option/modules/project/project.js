@@ -67,6 +67,7 @@ export default {
         name: "新增",
         buttonType: "success",
         onclick: ["showDialogForm", "create"],
+        hasRule: ['permissionList', 'has', 'create_project']
       },
     ],
     "fields": [
@@ -108,6 +109,7 @@ export default {
             type: "danger",
             tip: "确认删除?",
             onclick: ["deleteData", 'id'],
+            hasRule: [['permissionList', 'has', 'delete_project'], ['isOwner', 'method', true]]
           },
         ]
       },
@@ -119,6 +121,7 @@ export default {
         name: "编辑",
         buttonType: "primary",
         onclick: ["showInlineForm", "update"],
+        hasRule: [['permissionList', 'has', 'edit_product'], ['isOwner', 'method', true]]
       },
     ],
     "fields": [

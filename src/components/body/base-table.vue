@@ -44,6 +44,7 @@
             <el-button v-for="item in actions"
                        :type="item.buttonType"
                        :key="item"
+                       :disabled="item.hasRule?!hasRule(item.hasRule):false"
                        v-show="item.canShow?canShow(item.canShow):true"
                        @click="onTabeleActionClick(item.onclick)">{{ item.name }}</el-button>
           </div>
@@ -54,7 +55,7 @@
     <el-table :data="tableData"
               v-show="fields"
               ref="baseTable"
-              :max-height="innerHeight - 250">
+              :max-height="type && type == 'list'? innerHeight - 300:500">
       <el-table-column v-for="item in fields"
                        :key="item.name"
                        :label="item.alias"
@@ -76,7 +77,7 @@
                            @confirm="this.onTableItemClick(aciton.onclick, scope.row)">
               <template #reference>
                 <el-button :type="aciton.type"
-                           v-show="aciton.canShow?canShow(aciton.canShow):true">
+                           :disabled="aciton.hasRule?!hasRule(aciton.hasRule, scope.row):false">
                   {{aciton.alias}}
                 </el-button>
               </template>
@@ -87,8 +88,15 @@
                      @click="this.onTableItemClick(item.onclick, scope.row)">{{ scope.row[item.name] }}</el-button>
         </template>
       </el-table-column>
-    </el-table>
 
+    </el-table>
+    <el-pagination v-show="type==='list'"
+                   background
+                   layout="prev, pager, next"
+                   @update:current-page="currentPageChange"
+                   :current-page="currentPage"
+                   :page-size="paginate.per_page"
+                   :total="paginate.total" />
     <!--新增表单-->
     <el-dialog v-model="dialogVisible"
                width="500px"
@@ -170,6 +178,7 @@ import { isArray } from "@vue/shared";
 import * as MutationType from "../../MutationType";
 import pluralize from "pluralize";
 import axios from "axios";
+import { toRaw } from 'vue-demi';
 export default {
   props: { option: Object, type: String },
   computed: {
@@ -192,11 +201,20 @@ export default {
       })
       return instance
     },
+    auth () {
+      return this.$store.state.auth
+    },
+    permissionList () {
+      return this.$store.getters['auth/permissionList'] ?? new Set([])
+    },
     /**
      * 当前组件展示的 模块配置项开始
      */
     innerHeight () {
       return window.innerHeight
+    },
+    paginate () {
+      return this.$store.state.project.paginate && this.$store.state.project.paginate[this.model] ? this.$store.state.project.paginate[this.model] : { total: 0 }
     },
     fetching () {
       return this.$store.state.fetching;
@@ -484,7 +502,14 @@ export default {
       for (let item in this.modelData) {
         list.push(this.modelData[item]);
       }
-      return list;
+      list.reverse();
+      let first = (this.currentPage - 1) * this.paginate.per_page;
+      let last = first + this.paginate.per_page;
+      let nextList = list.slice(first, last);
+      if (nextList.length == 0) {
+        nextList = list.slice(list.length - this.paginate.per_page, list.length)
+      }
+      return nextList;
     },
     tableWidth () {
       return this.$refs.baseTable.bodyWidth;
@@ -503,6 +528,26 @@ export default {
     },
   },
   methods: {
+    currentPageChange (val) {
+      this.currentPage = val;
+      let list = [];
+      for (let item in this.modelData) {
+        list.push(this.modelData[item]);
+      }
+      let first = (val - 1) * this.paginate.per_page;
+      let last = first + this.paginate.per_page;
+      let nextList = list.slice(first, last);
+      if (nextList.length < this.paginate.per_page) {
+        this.getData(
+          this.modelDataType,
+          this.option.namespace,
+          this.option.model,
+          this.option.apiUrl,
+          this.option.include,
+          val
+        )
+      }
+    },
     clearData () {
       this.dialogVisible = false
       this.form = {}
@@ -682,36 +727,64 @@ export default {
           that.$message.success("保存失败!")
         });
     },
-    checkCanShow (key, rule, val) {
+
+    isOwner (val, data) {
+      if (!(this.auth && this.auth.user)) return false == val;
+      let judge = data.user_id == this.auth.user.id
+
+      return judge == val
+    },
+    checkCanShow (key, rule, val, data) {
       let judge = true;
+      if (!this[key]) return
       switch (rule) {
         case "neq":
           judge = judge && this[key] != val;
           break;
         case "eq":
+          judge = judge && this[key] == val;
+          break;
+        case 'in':
+          judge = judge && this[key].include(val);
+          break;
+        case 'nin':
+          judge = judge && !this[key].include(val);
+          break;
+        case 'has':
+          judge = judge && this[key].has(val);
+          break;
+        case 'nhas':
+          judge = judge && !this[key].has(val);
+          break;
+        case 'method':
+          judge = judge && this[key](val, data);
+          break;
         default:
           judge = judge && this[key] == val;
           break;
       }
       return judge
     },
-
-    canShow (canShow) {
+    hasRule (canShow, data = {}) {
+      return this.canShow(canShow, data)
+    },
+    canShow (canShow, data = {}) {
       if (!canShow) return true;
       let judge = true;
       if (Array.isArray(canShow[0])) {
         for (let item in canShow) {
-          judge = judge && this.checkCanShow(canShow[item][0], canShow[item][1], canShow[item][2])
+          judge = judge && this.checkCanShow(canShow[item][0], canShow[item][1], canShow[item][2], data)
         }
       } else {
-        judge = judge && this.checkCanShow(canShow[0], canShow[1], canShow[2])
+        judge = judge && this.checkCanShow(canShow[0], canShow[1], canShow[2], data)
       }
       return judge;
     },
-    getData (modelDataType, namespace, model, apiUrl, include) {
+    getData (modelDataType, namespace, model, apiUrl, include, page = 1) {
       let formData = {
         apiUrl,
         model,
+        page,
       };
       switch (modelDataType) {
         case "selfCorrelationDataDetail":
@@ -749,7 +822,8 @@ export default {
       this.modelDataType = modelDataType;
     }
   },
-  mounted () { },
+  mounted () {
+  },
   activated () { },
   data () {
     return {
@@ -759,6 +833,7 @@ export default {
       modelData: {},
       modelDataType: "",
       selectOption: {},
+      currentPage: 1
     };
   },
   watch: {

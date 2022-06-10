@@ -3,36 +3,42 @@
        style="background:#1F2937;">
     <div class="flex flex-col justify-center">
       <el-card class="w-96">
-        <el-form label-position="top"
-                 :model="form"
-                 :rules="rules"
-                 ref="phoneLoginFormRef">
-          <h1 class="text-3xl font-bold">手机验证码登陆</h1>
-          <el-form-item label="电话号码:"
-                        prop="phone">
-            <el-input v-model="form.phone"></el-input>
-          </el-form-item>
-          <el-form-item label="验证码:"
-                        prop="verification_code">
-            <el-input v-model="form.verification_code">
-              <template #append>
-                <el-button size="mini"
-                           @click="sendsms">{{tip}}</el-button>
-              </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary"
-                       class="w-full"
-                       @click="login('phoneLoginFormRef')">登录</el-button>
-          </el-form-item>
-          <div class="flex flex-row justify-between">
-            <el-button type="text"
-                       @click="this.$router.push('/login')">登录</el-button>
-            <el-button type="text"
-                       @click="this.$router.push('/register')">注册</el-button>
+        <div class="flex flex-col space-y-5">
+          <div>
+            <h1 class="text-3xl font-bold">手机验证码登陆</h1>
           </div>
-        </el-form>
+          <div>
+            <el-form label-position="top"
+                     :model="form"
+                     :rules="rules"
+                     ref="phoneLoginFormRef">
+              <el-form-item label="电话号码:"
+                            prop="phone">
+                <el-input v-model="form.phone"></el-input>
+              </el-form-item>
+              <el-form-item label="验证码:"
+                            prop="verification_code">
+                <el-input v-model="form.verification_code">
+                  <template #append>
+                    <el-button size="mini"
+                               @click="sendsms">{{tip}}</el-button>
+                  </template>
+                </el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary"
+                           class="w-full"
+                           @click="login('phoneLoginFormRef')">登录</el-button>
+              </el-form-item>
+              <div class="flex flex-row justify-between">
+                <el-button type="text"
+                           @click="this.$router.push('/login')">登录</el-button>
+                <el-button type="text"
+                           @click="this.$router.push('/register')">注册</el-button>
+              </div>
+            </el-form>
+          </div>
+        </div>
       </el-card>
     </div>
   </div>
@@ -44,6 +50,9 @@ import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   components: { ElCard, ElForm, ElFormItem, ElInput, ElButton },
   name: "phone-login",
+  mounted () {
+    this.$store.commit('setAuth', false)
+  },
   data () {
     return {
       form: {

@@ -3,54 +3,59 @@
        style="background:#1F2937;">
     <div class="flex flex-col justify-center">
       <el-card class="w-96">
-        <el-form label-position="top"
-                 :model="form"
-                 :rules="rules"
-                 ref="registerFormRef">
-          <h1 class="text-3xl font-bold">注册页</h1>
-          <div class="box pr-4 m-0"
-               :style="{overflowY :'auto',maxHeight: '500px'}">
-            <el-form-item label="用户名:"
-                          prop="name">
-              <el-input v-model="form.name"></el-input>
-            </el-form-item>
-            <el-form-item label="密码:"
-                          prop="password">
-              <el-input type="password"
-                        v-model="form.password"></el-input>
-            </el-form-item>
-            <el-form-item label="确认密码:"
-                          prop="repassword">
-              <el-input type="password"
-                        v-model="form.repassword"></el-input>
-            </el-form-item>
-            <el-form-item label="手机号码:"
-                          prop="phone">
-              <el-input v-model="form.phone"></el-input>
-            </el-form-item>
-            <el-form-item label="验证码:"
-                          prop="verification_code">
-              <el-input v-model="form.verification_code">
-                <template #append>
-                  <el-button size="mini"
-                             @click="sendsms">{{tip}}</el-button>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item label="邀请码:">
-              <el-input v-model="form.invitation_code"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary"
-                         class="w-full"
-                         @click="register('registerFormRef')">注册</el-button>
-            </el-form-item>
+
+        <div class="flex flex-col space-y-5">
+          <div>
+            <h1 class="text-3xl font-bold">注册页</h1>
           </div>
-          <div class="flex flex-row justify-between">
-            <el-button type="text"
-                       @click="this.$router.push('/login')">登陆</el-button>
-          </div>
-        </el-form>
+          <el-form label-position="top"
+                   :model="form"
+                   :rules="rules"
+                   ref="registerFormRef">
+            <div class="box pr-4 m-0"
+                 :style="{overflowY :'auto',maxHeight: '500px'}">
+              <el-form-item label="用户名:"
+                            prop="name">
+                <el-input v-model="form.name"></el-input>
+              </el-form-item>
+              <el-form-item label="密码:"
+                            prop="password">
+                <el-input type="password"
+                          v-model="form.password"></el-input>
+              </el-form-item>
+              <el-form-item label="确认密码:"
+                            prop="repassword">
+                <el-input type="password"
+                          v-model="form.repassword"></el-input>
+              </el-form-item>
+              <el-form-item label="手机号码:"
+                            prop="phone">
+                <el-input v-model="form.phone"></el-input>
+              </el-form-item>
+              <el-form-item label="验证码:"
+                            prop="verification_code">
+                <el-input v-model="form.verification_code">
+                  <template #append>
+                    <el-button size="mini"
+                               @click="sendsms">{{tip}}</el-button>
+                  </template>
+                </el-input>
+              </el-form-item>
+              <el-form-item label="邀请码:">
+                <el-input v-model="form.invitation_code"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary"
+                           class="w-full"
+                           @click="register('registerFormRef')">注册</el-button>
+              </el-form-item>
+            </div>
+            <div class="flex flex-row justify-between">
+              <el-button type="text"
+                         @click="this.$router.push('/login')">登陆</el-button>
+            </div>
+          </el-form>
+        </div>
       </el-card>
     </div>
   </div>
@@ -63,6 +68,9 @@ import { ElNotification } from 'element-plus'
 export default {
   components: { ElCard, ElForm, ElFormItem, ElInput, ElButton },
   name: "base-register",
+  mounted () {
+    this.$store.commit('setAuth', false)
+  },
   data () {
     return {
       tip: "发送",
