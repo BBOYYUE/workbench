@@ -1,26 +1,29 @@
-#content {
-  .cm-activeLine,
-  .cm-line {
-    background-color: rgb(31 41 55 / var(--tw-bg-opacity));
-  }
-  .cm-content {
-    caret-color: white;
-  }
-  .cm-gutters {
-    color: white;
-    --tw-bg-opacity: 1;
-    background-color: rgba(75, 85, 99, var(--tw-bg-opacity));
-    border-right: rgba(75, 85, 99, var(--tw-bg-opacity));
-  }
-  .cm-activeLineGutter {
-    --tw-bg-opacity: 1;
-    background-color: rgba(75, 85, 99, var(--tw-bg-opacity));
-  }
-  .cm-scroller {
-    overflow: visible;
-  }
+// #content {
+//   .cm-activeLine,
+//   .cm-line {
+//     background-color: rgb(31 41 55 / var(--tw-bg-opacity));
+//   }
+//   .cm-content {
+//     caret-color: white;
+//   }
+//   .cm-gutters {
+//     color: white;
+//     --tw-bg-opacity: 1;
+//     background-color: rgba(75, 85, 99, var(--tw-bg-opacity));
+//     border-right: rgba(75, 85, 99, var(--tw-bg-opacity));
+//   }
+//   .cm-activeLineGutter {
+//     --tw-bg-opacity: 1;
+//     background-color: rgba(75, 85, 99, var(--tw-bg-opacity));
+//   }
+//   .cm-scroller {
+//     overflow: visible;
+//   }
+// }
+.el-scrollbar__view {
+  width: 100%;
+  height: 100%;
 }
-
 #right-box {
   .el-form-item {
     .el-form-item__label {
@@ -32,7 +35,7 @@
   .el-menu {
     // --el-menu-active-color: rgba(156, 163, 175, var(--tw-bg-opacity));
     --el-menu-active-color: #ffffff;
-    --el-menu-text-color: rgba(107, 114, 128, var(--tw-bg-opacity));
+    --el-menu-text-color: rgba(209, 213, 219, var(--tw-bg-opacity));
     --el-menu-hover-text-color: #ffffff;
     // --el-menu-hover-text-color: rgba(156, 163, 175, var(--tw-bg-opacity));
     /* --el-menu-bg-color: var(--el-fill-color-blank); */

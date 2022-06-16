@@ -13,7 +13,9 @@ import Hammer from 'hammerjs'
 import 'default-passive-events'
 import VueCodemirror from 'vue-codemirror'
 import { basicSetup } from '@codemirror/basic-setup'
-
+import { json } from '@codemirror/lang-json'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { lineNumbers, gutter } from "@codemirror/view"
 const app = createApp(App)
 
 app.use(VueCodemirror, {
@@ -23,7 +25,8 @@ app.use(VueCodemirror, {
   indentWithTab: true,
   tabSize: 4,
   placeholder: '在这里输入',
-  extensions: [basicSetup]
+  extensions: [lineNumbers(), gutter({ class: "cm-mygutter" }), json(), oneDark],
+  mode: 'application/json'
 })
 /**
  * 重写了 localStorage

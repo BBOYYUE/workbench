@@ -12,34 +12,45 @@
     </div>
     <div class="flex flex-row justify-between flex-grow"
          id="bottom-box">
-      <div class="flex flex-row justify-between min-w-4 w-72 "
-           ref="left">
-        <div class="flex-grow bg-gray-900 w-full">
-          <slot name="left"></slot>
+      <!--左侧-->
+      <div class="flex flex-row ">
+        <div class="flex flex-row justify-between min-w-4 w-72 "
+             ref="left">
+          <div class="flex-grow bg-gray-900 w-full">
+            <slot name="left"></slot>
+          </div>
         </div>
+        <div class="bg-gray-900 w-1 cursor-e-resize"
+             id="left"
+             @mousedown="down"
+             @touchstart="down"></div>
       </div>
-      <div class="bg-gray-900 w-1 cursor-e-resize"
-           id="left"
-           @mousedown="down"
-           @touchstart="down"></div>
+
       <div class="flex flex-col flex-grow"
            id="right-box">
+
         <div class="flex flex-row flex-grow">
           <div class="flex-grow bg-gray-800"
                ref="content">
-            <el-scrollbar class="w-full h-full"
-                          always>
-              <slot name="content"></slot>
-            </el-scrollbar>
+            <slot name="content"></slot>
           </div>
-          <div class="bg-gray-900 w-1 cursor-w-resize"
-               id="right"
-               @mousedown="down"
-               @touchstart="down"></div>
-          <div class="flex flex-row justify-between min-w-4 "
-               ref="right">
-            <div class="flex-grow bg-gray-900">
-              <slot name="right"></slot>
+          <!--右侧-->
+          <div class="flex flex-row">
+            <div class="bg-gray-900 w-1 cursor-w-resize  "
+                 id="right"
+                 @mousedown="down"
+                 @touchstart="down"></div>
+            <div class="flex flex-col"
+                 ref="right">
+              <div class=" flex-grow">
+                <slot name="right-menu"></slot>
+              </div>
+              <div class="bg-gray-900 w-full h-full">
+                <el-scrollbar class="w-full h-full"
+                              always>
+                  <slot name="right"></slot>
+                </el-scrollbar>
+              </div>
             </div>
           </div>
         </div>
@@ -85,12 +96,15 @@ export default {
       "px - " +
       this.$refs.right.offsetWidth +
       "px)";
+
     this.$refs.content.style.maxHeight =
       "calc(100vh - " +
       this.$refs.top.offsetHeight +
       "px - " +
       this.$refs.footer.offsetHeight +
-      "px)";
+      "px + 1px)";
+    this.$refs.right.style.maxWidth = this.$refs.right.offsetWidth
+    this.$refs.right.style.maxHeight = this.$refs.content.style.maxHeight
   },
   methods: {
     down (event) {
@@ -141,6 +155,7 @@ export default {
               "px)";
 
             this.$refs[this.activeBox].style.width = width;
+            this.$refs[this.activeBox].style.maxWidth = width
             break;
           case "right":
             if (
@@ -158,6 +173,7 @@ export default {
               this.$refs.left.offsetWidth +
               "px)";
             this.$refs[this.activeBox].style.width = width;
+            this.$refs[this.activeBox].style.maxWidth = width
             break;
           case "footer":
             if (
@@ -170,6 +186,8 @@ export default {
             height = window.innerHeight - this.yPum + "px";
             this.$refs.content.style.maxHeight =
               "calc(100vh - " + height + " - 2.5rem" + ")";
+            this.$refs.right.style.maxHeight =
+              "calc(100vh - " + height + " - 2.5rem - 1.5px" + ")";
             this.$refs[this.activeBox].style.height = height;
             break;
         }
