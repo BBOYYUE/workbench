@@ -191,7 +191,9 @@ export default {
             this.$refs[this.activeBox].style.height = height;
             break;
         }
-
+        setTimeout(function () {
+          window.dispatchEvent(new Event('contentResize'))
+        }, 25)
         // this.moveDiv.style.left = this.xPum + "px";
         // this.moveDiv.style.top = this.yPum + "px";
       }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <panorama-editor :uuid="uuid"></panorama-editor>
+    <component :is="editComponent"></component>
   </div>
 </template>
 <script>
@@ -15,7 +15,8 @@ import { mapState } from "vuex";
 import * as MutationType from "../MutationType";
 import "./work-editor.scss";
 import PanoramaEditor from "@/components/editor/panorama/panorama-editor"
-
+import ThreeEditor from "@/components/editor/three/three-editor"
+import DesignEditor from "@/components/editor/design/design-editor"
 // import { normalize, schema } from 'normalizr'
 
 // let forms = new schema.Entity('forms')
@@ -32,7 +33,9 @@ import PanoramaEditor from "@/components/editor/panorama/panorama-editor"
 
 export default {
   components: {
-    PanoramaEditor
+    PanoramaEditor,
+    ThreeEditor,
+    DesignEditor
   },
   props: {
     workType: String,
@@ -59,6 +62,16 @@ export default {
           return this.module[11];
         case "3":
           return this.module[13];
+      }
+    },
+    editComponent () {
+      switch (this.workType) {
+        case "1":
+          return 'panorama-editor';
+        case "2":
+          return 'design-editor';
+        case "3":
+          return 'three-editor';
       }
     },
     moduleName () {
