@@ -2,23 +2,6 @@ export default {
   "krpano": {
     "layer": [
       {
-        "@value": "",
-        "@attributes": {
-          "name": "skin_btn_littlemap",
-          "type": "image",
-          "keep": "true",
-          "url": "%SWFPATH%/skin/menu.png",
-          "crop": "700|0|96|250",
-          "align": "rightbottom",
-          "x": "10",
-          "y": "166",
-          "scale": "0.31",
-          "alpha": "1",
-          "onclick": "closemap()",
-          "visible": "true"
-        }
-      },
-      {
         "layer": {
           "layer": {
             "layer": [

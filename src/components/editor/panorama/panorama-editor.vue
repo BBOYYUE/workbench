@@ -9,132 +9,162 @@
       </div>
     </template>
     <template v-slot:left>
-      <left-menu />
+      <left-menu @change="leftMenuItemChange" />
     </template>
-
     <template v-slot:content>
-      <div class="w-full h-full flex flex-col"
-           id="content">
-        <div class="w-full h-full">
-          <div id="prview"
-               style="width: 100%; height: 100%; overflow: hidden"></div>
-        </div>
-      </div>
-    </template>
-    <template v-slot:right-menu>
-      <div class="w-full h-8 bg-gray-700 flex flex-row justify-between">
-        <div class="flex flex-row">
-          <div class="h-full flex flex-col justify-center mx-1">
-            <div class="p-1 rounded-md text-gray-300"
-                 style="font-size: 0.5rem"
-                 @click="changeEditorType('visualization')">
-              可视化编辑
-            </div>
-          </div>
-          <div class="h-full flex flex-col justify-center mx-1">
-            <div class="p-1 rounded-md text-gray-300"
-                 style="font-size: 0.5rem"
-                 @click="changeEditorType('text')">
-              文本编辑
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
-    <template v-slot:right>
-      <div class="w-full h-full">
-        <div v-show="editorType == 'visualization'"
-             class="w-full h-full"></div>
+      <div id="content"
+           class="w-full h-full">
+        <div id="prview"
+             v-show="editorType == 'view'"
+             @mousedown="mouseDown"
+             @mouseup="mouseUp"
+             @click="mouseClick"
+             style="width: 100%; height: 100%; overflow: hidden"></div>
         <div v-show="editorType == 'text'"
-             class="w-full h-full">
+             style="width: 100%; height: 100%; overflow: hidden">
           <vue-codemirror v-model="optionString"
                           @change="textChange"
                           :extensions="editorExtensions"></vue-codemirror>
         </div>
       </div>
     </template>
-    <template v-slot:footer>
-      <div class="h-full w-full"
-           id="footer">
-        <el-tabs type="border-card"
-                 class="h-full w-full">
-          <el-tab-pane label="场景列表"
-                       key="asset"
-                       class="h-full w-full">
-            <el-tabs :closable="true"
-                     tabPosition="left"
-                     @tab-remove="tabRemove"
-                     class="h-full">
-              <el-tab-pane label="默认分组"
-                           key="defaultGroup"
-                           class="h-full">
-              </el-tab-pane>
-            </el-tabs>
-          </el-tab-pane>
-          <el-tab-pane label="文件列表"
-                       key="files"
-                       class="h-full w-full">
-            <div class="w-24 h-20 text-center flex flex-col justify-between">
-              <div class="text-center">
-                <un-known-file class="w-12 h-12"></un-known-file>
-              </div>
-              <div class="overflow-clip">区域鸟瞰.jpg</div>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="任务列表"
-                       key="files"
-                       class="h-full w-full">
-          </el-tab-pane>
-          <el-tab-pane label="上传列表"
-                       key="upload"
-                       class="h-full w-full">
-            <el-scrollbar class="w-full h-full"
-                          always>
-              <el-upload class="w-full h-full"
-                         :data="{uuid}"
-                         :headers="{
-                          Authorization: 'Bearer ' + access_token
-                         }"
-                         action="
-                         http://192.168.10.10/api/v2/filesystems"
-                         multiple
-                         drag>
-                <el-icon class="el-icon--upload">
-                  <upload-filled />
-                </el-icon>
-                <div class="el-upload__text">
-                  拖到这里或者 <em>点击上传</em>
-                </div>
-              </el-upload>
-            </el-scrollbar>
-          </el-tab-pane>
-        </el-tabs>
+    <template v-slot:content-menu>
+      <content-menu @change="contentMenuItemChange"></content-menu>
+    </template>
+    <template v-slot:right>
+      <div class="w-full h-full">
+        <div class="w-full h-full"
+             id="right-form">
+          <right-form :active="leftMenuItemActive"></right-form>
+        </div>
       </div>
+    </template>
+    <template v-slot:footer>
+      <footer-menu></footer-menu>
     </template>
   </base-editor>
 </template>
 <script>
-
 /* eslint-disable */
 import BaseEditor from "@/module/base-editor.vue";
 import LeftMenu from "./left-menu.vue"
-import PanoList from "./pano-list.vue"
-import FileList from "./file-list.vue"
-import UploadList from "./upload-list.vue"
 import panorama from "@/util/mock/panorama"
 import JsonFormatter from "json-string-formatter"
 import UnKnownFile from '@/components/icon/unKnownFile.vue';
+import FooterMenu from './footer-menu.vue';
+import ContentMenu from "./content-menu.vue"
+import RightForm from "./right-form.vue"
+import krpanoUtil from "../../../util/krpano/util"
+
 export default {
   props: {
     uuid: String
   },
-  components: { LeftMenu, BaseEditor, PanoList, FileList, UploadList, UnKnownFile },
+  components: { LeftMenu, BaseEditor, UnKnownFile, FooterMenu, ContentMenu, RightForm },
   data () {
     return {
-      option: {},
+      option: [
+        {
+          name: "112m²",
+          uuid: 123123,
+          scene: [
+            {
+              thumburl: "",
+              view: {
+                hlookat: '',
+                vlookat: '',
+                fovtype: "",
+                fov: "",
+                maxpixelzoom: "",
+                fovmin: "",
+                fovmax: "",
+                limitview: "",
+                hlookatmin: "",
+                hlookatmax: "",
+                vlookatmin: "",
+                vlookatmax: ""
+              },
+              hotpostGroup: [
+                {
+                  hotspot: [
+                    {
+                      event: []
+                    }
+                  ],
+                  event: []
+                }
+              ],
+              text: [],
+              img: [],
+              map: [],
+              event: []
+            }
+          ],
+          event: []
+        },
+      ],
       optionString: "",
-      editorExtensions: [],
-      editorType: ""
+
+      /**
+       * 编辑器类型
+       */
+      editorType: "",
+      /**
+       * 左侧菜单选中项
+       */
+      leftMenuItemActive: "",
+
+      /**
+       * 资源列表
+       */
+      assetList: {
+        sceneGroups: [
+          {
+            name: "默认分组",
+            style: "默认样式",
+            map: "",
+            scenes: [],
+            isShow: true,
+            events: []
+          }
+        ],
+        scenes: [
+          {
+            name: "厨房",
+            file: "",
+            angle: "",
+            hotspotGroups: [],
+            hotspots: [],
+            texts: [],
+            imgs: [],
+            events: []
+          }
+        ],
+        maps: [
+          {
+            name: "112户型",
+            file: "",
+            spots: [
+              {
+                x: 0,
+                y: 0,
+                angle: 90,
+              }
+            ]
+          }
+        ],
+        hotspotGroups: [],
+        hotspots: [],
+        flags: [],
+        texts: [],
+        imgs: [],
+        angles: [],
+        effects: [],
+        events: [],
+        files: [],
+        tasks: [],
+        uploads: []
+      }
     }
   },
   computed: {
@@ -143,31 +173,66 @@ export default {
     }
   },
   methods: {
+    leftMenuItemChange (item) {
+      if (item === 'infomation-4') {
+        let event = new Event('reSetEditerWindowSize');
+        event.data = {
+          layout: "right",
+          type: "maxWidth"
+        }
+        window.dispatchEvent(event)
+      } else {
+        let event = new Event('reSetEditerWindowSize');
+        event.data = {
+          layout: "content",
+          type: "maxWidth"
+        }
+        window.dispatchEvent(event)
+      }
+      this.leftMenuItemActive = item
+    },
+    contentMenuItemChange (item) {
+      this.editorType = item
+    },
     textChange (val) {
       val
     },
-    changeEditorType (val) {
-      this.editorType = val
-    },
-    prviewReady (prview) {
+    KrpanoReady (prview) {
       prview
-    }
+      console.log('krpano 就绪')
+    },
+    mouseDown (event) {
+      event;
+      console.log('鼠标长按')
+    },
+    mouseClick (event) {
+      event;
+      console.log('鼠标点击')
+    },
+    mouseUp (event) {
+      event;
+      console.log('鼠标放开')
+    },
+
+
+
+
   },
   watch: {
   },
   mounted () {
     this.option = panorama
     this.optionString = JsonFormatter.format(JSON.stringify(this.option))
-    this.editorType = 'visualization'
+    this.editorType = 'view'
     embedpano({
       swf: "./krpano/tour.swf",
-      xml: "./krpano/tour.xml",
+      xml: "./krpano/test.xml",
       target: "prview",
       html5: "auto",
       mobilescale: 1.0,
       passQueryParameters: true,
-      onready: this.prviewReady,
-      initvars: { xmlPath: './test.xml' },
+      onready: this.KrpanoReady,
+      // initvars: { xmlPath: './test.xml' },
       consolelog: true,
     });
   },

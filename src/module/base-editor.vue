@@ -1,66 +1,59 @@
 <template>
-  <div class="w-screen h-screen flex flex-col justify-between"
+  <div class="w-screen h-screen flex flex-col"
        @mouseup="end"
        @touchend="end"
        @mousemove="move"
-       @touchmove="move"
-       ref="layout">
+       @touchmove="move">
     <div class="bg-gray-800 border-gray-800 border-b border-solid h-10"
          id="top"
          ref="top">
       <slot name="header"></slot>
     </div>
-    <div class="flex flex-row justify-between flex-grow"
-         id="bottom-box">
+    <div class="flex flex-row justify-between">
       <!--左侧-->
-      <div class="flex flex-row ">
-        <div class="flex flex-row justify-between min-w-4 w-72 "
-             ref="left">
-          <div class="flex-grow bg-gray-900 w-full">
-            <slot name="left"></slot>
-          </div>
+      <div class="flex flex-row w-72 z-30"
+           ref="left">
+        <div class="flex-grow bg-gray-900 w-full h-full">
+          <slot name="left"></slot>
         </div>
-        <div class="bg-gray-900 w-1 cursor-e-resize"
+        <div class="bg-gray-900 w-2 cursor-e-resize"
              id="left"
              @mousedown="down"
              @touchstart="down"></div>
       </div>
 
-      <div class="flex flex-col flex-grow"
-           id="right-box">
-
+      <div class="flex flex-col flex-grow">
         <div class="flex flex-row flex-grow">
-          <div class="flex-grow bg-gray-800"
-               ref="content">
-            <slot name="content"></slot>
+          <div class="flex flex-col flex-grow bg-gray-800 z-0">
+            <div ref="contentMenu">
+              <slot name="content-menu"></slot>
+            </div>
+            <div ref="content"
+                 class="flex-grow">
+              <el-scrollbar always>
+                <slot name="content"></slot>
+              </el-scrollbar>
+            </div>
           </div>
           <!--右侧-->
-          <div class="flex flex-row">
-            <div class="bg-gray-900 w-1 cursor-w-resize  "
+          <div class="flex flex-row z-10">
+            <div class="bg-gray-900 w-2 cursor-w-resize  "
                  id="right"
                  @mousedown="down"
                  @touchstart="down"></div>
-            <div class="flex flex-col"
+            <div class="bg-gray-900 min-w-4 w-72"
                  ref="right">
-              <div class=" flex-grow">
-                <slot name="right-menu"></slot>
-              </div>
-              <div class="bg-gray-900 w-full h-full">
-                <el-scrollbar class="w-full h-full"
-                              always>
-                  <slot name="right"></slot>
-                </el-scrollbar>
-              </div>
+              <slot name="right"></slot>
             </div>
           </div>
         </div>
-        <div class="flex flex-col justify-between min-h-4"
+        <div class="flex flex-col justify-between h-72 z-20"
              ref="footer">
-          <div class="bg-gray-700 h-1 cursor-n-resize"
+          <div class="bg-gray-700 h-2 cursor-n-resize "
                id="footer"
                @mousedown="down"
                @touchstart="down"></div>
-          <div class="flex-grow bg-gray-700 overflow-hidden w-full ">
+          <div class="flex-grow bg-gray-700">
             <slot name="footer"></slot>
           </div>
         </div>
@@ -90,23 +83,44 @@ export default {
     };
   },
   mounted () {
-    this.$refs.content.style.maxWidth =
-      "calc(100vw - " +
-      this.$refs.left.offsetWidth +
-      "px - " +
-      this.$refs.right.offsetWidth +
-      "px)";
+    let top = this.$refs.top;
+    let left = this.$refs.left;
+    let right = this.$refs.right;
+    let contentMenu = this.$refs.contentMenu;
+    let content = this.$refs.content;
+    let footer = this.$refs.footer
 
-    this.$refs.content.style.maxHeight =
-      "calc(100vh - " +
-      this.$refs.top.offsetHeight +
-      "px - " +
-      this.$refs.footer.offsetHeight +
-      "px + 1px)";
-    this.$refs.right.style.maxWidth = this.$refs.right.offsetWidth
-    this.$refs.right.style.maxHeight = this.$refs.content.style.maxHeight
+    left.style.height = "calc(100vh - " + top.offsetHeight + "px)"
+    footer.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px)"
+    content.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px - " + right.offsetWidth + "px - 1rem)"
+    content.style.maxHeight = "calc(100vh - " + top.offsetHeight + "px - " + contentMenu.offsetHeight + "px - " + footer.offsetHeight + "px - 1rem)"
+    window.addEventListener('reSetEditerWindowSize', this.reSetEditerWindowSize);
   },
   methods: {
+    reSetEditerWindowSize (event) {
+      let layout = event.data.layout;
+      let type = event.data.type;
+      if (layout == 'right' && type == "maxWidth") {
+        this.setRightMaxSize()
+      } else if (layout == 'content' && type == "maxWidth") {
+        this.setContentMaxSize()
+      }
+    },
+    setRightMaxSize () {
+      let left = this.$refs.left;
+      let right = this.$refs.right;
+      let content = this.$refs.content;
+      let footer = this.$refs.footer
+      right.style.width = "calc(" + footer.offsetWidth + "px - 18rem - .5rem)"
+      content.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px - " + right.offsetWidth + "px - 1rem)"
+    },
+    setContentMaxSize () {
+      let left = this.$refs.left;
+      let right = this.$refs.right;
+      let content = this.$refs.content;
+      right.style.width = "18rem"
+      content.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px - " + right.offsetWidth + "px - 1rem)"
+    },
     down (event) {
       this.moveDiv = event.target;
       this.activeBox = this.moveDiv.id;
@@ -135,67 +149,49 @@ export default {
         this.ny = touch.clientY - this.position.y;
         this.xPum = this.dx + this.nx;
         this.yPum = this.dy + this.ny;
-        let width;
-        let height;
-        switch (this.activeBox) {
-          case "left":
-            if (
-              this.xPum + 370 >
-              this.$refs.layout.offsetWidth -
-              this.$refs.right.offsetWidth
-            ) {
-              return;
-            }
-            width = this.xPum + "px";
-            this.$refs.content.style.maxWidth =
-              "calc(100vw - " +
-              width +
-              " - " +
-              this.$refs.right.offsetWidth +
-              "px)";
-
-            this.$refs[this.activeBox].style.width = width;
-            this.$refs[this.activeBox].style.maxWidth = width
-            break;
-          case "right":
-            if (
-              window.innerWidth - this.xPum + 370 >
-              this.$refs.layout.offsetWidth -
-              this.$refs.left.offsetWidth
-            ) {
-              return;
-            }
-            width = window.innerWidth - this.xPum + "px";
-            this.$refs.content.style.maxWidth =
-              "calc(100vw - " +
-              width +
-              " - " +
-              this.$refs.left.offsetWidth +
-              "px)";
-            this.$refs[this.activeBox].style.width = width;
-            this.$refs[this.activeBox].style.maxWidth = width
-            break;
-          case "footer":
-            if (
-              window.innerHeight - this.yPum >
-              this.$refs.layout.offsetHeight -
-              this.$refs.top.offsetHeight
-            ) {
-              return;
-            }
-            height = window.innerHeight - this.yPum + "px";
-            this.$refs.content.style.maxHeight =
-              "calc(100vh - " + height + " - 2.5rem" + ")";
-            this.$refs.right.style.maxHeight =
-              "calc(100vh - " + height + " - 2.5rem - 1.5px" + ")";
-            this.$refs[this.activeBox].style.height = height;
-            break;
-        }
+        console.log(this.activeBox)
+        this.setWindowSize(this.activeBox, this.xPum, this.yPum)
         setTimeout(function () {
           window.dispatchEvent(new Event('contentResize'))
         }, 25)
         // this.moveDiv.style.left = this.xPum + "px";
         // this.moveDiv.style.top = this.yPum + "px";
+      }
+    },
+    setWindowSize (type, x, y) {
+      let top = this.$refs.top;
+      let left = this.$refs.left;
+      let right = this.$refs.right;
+      let contentMenu = this.$refs.contentMenu;
+      let content = this.$refs.content;
+      let footer = this.$refs.footer
+      switch (type) {
+        case 'right':
+          if (x > window.innerWidth - 20) return;
+          if (x < 200 + left.offsetWidth) return;
+          right.style.width = "calc(100vw - " + x + "px - .5rem)"
+          content.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px - " + right.offsetWidth + "px - 1rem)"
+          content.style.maxHeight = "calc(100vh - " + top.offsetHeight + "px - " + contentMenu.offsetHeight + "px - " + footer.offsetHeight + "px - 1rem)"
+
+          break
+        case "left":
+          console.log(x, window.innerWidth - 200 - right.offsetWidth)
+          if (x < 20) return;
+          left.style.width = "calc(" + x + "px + .5rem)"
+          footer.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px)"
+          content.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px - " + right.offsetWidth + "px - 1rem)"
+          content.style.maxHeight = "calc(100vh - " + top.offsetHeight + "px - " + contentMenu.offsetHeight + "px - " + footer.offsetHeight + "px - 1rem)"
+
+          break
+        case "footer":
+          if (y < top.height + 200) return;
+          if (y > window.innerHeight - 200 - top.offsetHeight) return;
+          footer.style.height = "calc(100vh - " + y + "px)"
+          content.style.maxWidth = "calc(100vw - " + left.offsetWidth + "px - " + right.offsetWidth + "px - 1rem)"
+          content.style.maxHeight = "calc(100vh - " + top.offsetHeight + "px - " + contentMenu.offsetHeight + "px - " + footer.offsetHeight + "px - 1rem)"
+
+          break
+
       }
     },
     end () {

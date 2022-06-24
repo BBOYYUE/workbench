@@ -8,144 +8,74 @@
         </div>
       </div>
     </template>
-    <template v-slot:left></template>
+    <template v-slot:left>
+      <left-menu @change="leftMenuItemChange"></left-menu>
+    </template>
     <template v-slot:content>
-      <div class="w-full h-full flex flex-col"
-           id="content">
-        <div class="w-full h-full"
-             style="overflow: hidden">
-          <div id="prview"
-               style="width: 100%; height: 100%; max-width: 100%; max-height:100%; overflow: hidden"></div>
-        </div>
-      </div>
-    </template>
-    <template v-slot:right-menu>
-      <div class="w-full h-8 bg-gray-700 flex flex-row justify-between">
-        <div class="flex flex-row">
-          <div class="h-full flex flex-col justify-center mx-1">
-            <div class="p-1 rounded-md text-gray-300"
-                 style="font-size: 0.5rem"
-                 @click="changeEditorType('visualization')">
-              可视化编辑
-            </div>
-          </div>
-          <div class="h-full flex flex-col justify-center mx-1">
-            <div class="p-1 rounded-md text-gray-300"
-                 style="font-size: 0.5rem"
-                 @click="changeEditorType('text')">
-              文本编辑
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
-    <template v-slot:right>
-      <div class="w-full h-full">
-        <div v-show="editorType == 'visualization'"
-             class="w-full h-full"></div>
+      <div id="content"
+           class="w-full h-full">
+        <div id="prview"
+             class="bg-white"
+             v-show="editorType == 'view'"
+             style="width: 100%; height: 100%; overflow: hidden"></div>
         <div v-show="editorType == 'text'"
-             class="w-full h-full">
+             style="width: 100%; height: 100%; overflow: hidden">
           <vue-codemirror v-model="optionString"
                           @change="textChange"
                           :extensions="editorExtensions"></vue-codemirror>
         </div>
       </div>
     </template>
-    <template v-slot:footer>
-      <div class="h-full w-full"
-           id="footer">
-        <el-tabs type="border-card"
-                 class="h-full w-full">
-          <el-tab-pane label="场景列表"
-                       key="asset"
-                       class="h-full w-full">
-            <el-tabs :closable="true"
-                     tabPosition="left"
-                     @tab-remove="tabRemove"
-                     class="h-full">
-              <el-tab-pane label="默认分组"
-                           key="defaultGroup"
-                           class="h-full">
-              </el-tab-pane>
-            </el-tabs>
-          </el-tab-pane>
-          <el-tab-pane label="物体列表"
-                       key="boxs"
-                       class="h-full w-full">
-            <el-tabs tabPosition="left"
-                     @tab-remove="tabRemove"
-                     class="h-full">
-              <el-tab-pane label="当前场景物体"
-                           key="now-boxs"
-                           class="h-full">
-              </el-tab-pane>
-              <el-tab-pane label="所有物体"
-                           key="all-boxs"
-                           class="h-full">
-              </el-tab-pane>
-            </el-tabs>
-          </el-tab-pane>
-          <el-tab-pane label="贴图列表"
-                       key="mtls"
-                       class="h-full w-full">
-            <el-tabs tabPosition="left"
-                     @tab-remove="tabRemove"
-                     class="h-full">
-              <el-tab-pane label="当前场景贴图"
-                           key="now-boxs"
-                           class="h-full">
-              </el-tab-pane>
-              <el-tab-pane label="所有贴图"
-                           key="all-boxs"
-                           class="h-full">
-              </el-tab-pane>
-            </el-tabs>
-          </el-tab-pane>
-          <el-tab-pane label="文件列表"
-                       key="files"
-                       class="h-full w-full">
-            <div class="w-24 h-20 text-center flex flex-col justify-between">
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="任务列表"
-                       key="files"
-                       class="h-full w-full">
-
-          </el-tab-pane>
-          <el-tab-pane label="上传列表"
-                       key="upload"
-                       class="h-full w-full">
-            <el-scrollbar class="w-full h-full"
-                          always>
-              <el-upload class="w-full h-full"
-                         :data="{uuid}"
-                         :headers="{
-                          Authorization: 'Bearer ' + access_token
-                         }"
-                         action="
-                         http://192.168.10.10/api/v2/filesystems"
-                         multiple
-                         drag>
-                <el-icon class="el-icon--upload">
-                  <upload-filled />
-                </el-icon>
-                <div class="el-upload__text">
-                  拖到这里或者 <em>点击上传</em>
-                </div>
-              </el-upload>
-            </el-scrollbar>
-          </el-tab-pane>
-        </el-tabs>
+    <template v-slot:content-menu>
+      <content-menu @change="contentMenuItemChange"></content-menu>
+    </template>
+    <template v-slot:right>
+      <div class="w-full h-full">
+        <div class="w-full h-full">
+          <right-form :active="leftMenuItemActive"></right-form>
+        </div>
       </div>
+    </template>
+    <template v-slot:footer>
+      <footer-menu></footer-menu>
     </template>
   </base-editor>
 </template>
 <script>
 import BaseEditor from "@/module/base-editor.vue";
+import LeftMenu from '../design/left-menu.vue';
+import FooterMenu from "./footer-menu.vue";
+import ContentMenu from "./content-menu.vue"
+import RightForm from "./right-form.vue"
 export default {
-  components: { BaseEditor },
+  components: { BaseEditor, LeftMenu, FooterMenu, ContentMenu, RightForm },
   setup () {
 
+  },
+  mounted () {
+    this.editorType = 'view'
+  },
+  data () {
+    return {
+      option: {},
+      optionString: "",
+      editorType: "",
+      leftMenuItemActive: ""
+    }
+  },
+  methods: {
+    leftMenuItemChange (item) {
+      this.leftMenuItemActive = item
+    },
+    contentMenuItemChange (item) {
+      this.editorType = item
+    },
+    textChange (val) {
+      val
+    },
+    prviewReady (prview) {
+      prview
+    }
   },
   computed: {
     access_token () {

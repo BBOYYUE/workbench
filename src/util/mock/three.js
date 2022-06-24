@@ -1,31 +1,46 @@
 export default {
-  name: "模型作品",
-  group: {
-    assets: [
+  "threejs": {
+    "scene": [
       {
-        name: "116",
-        scene: [
-          {
-            name: "上叠",
-            objs: [1, 2, 3]
+        "skyBox": {
+          "geometry": {
+            "type": "THREE",
+            "name": "SphereGeometry",
+            "size": [500, 500, 500],
+            "position": [0, 0, 0]
           },
-          {
-            name: "下叠",
+          "material": {
+            "type": "THREE",
+            "name": "MeshBasicMaterial",
+            "color": 0x60A0FA,
+            "side": "BackSide"
           }
-        ],
-        obj: [
-          {
-            name: "物体A",
-            cutGraph: [1, 2, 3]
+        },
+        "groundBox": {
+          "geometry": {
+            "type": "THREE",
+            "name": "CircleGeometry",
+            "size": [500, 500],
+            "position": [0, 0, 0],
+            "rotation": [-0.5 * Math.PI, 0, 0],
+          },
+          "material": {
+            "type": "THREE",
+            "name": "MeshPhongMaterial",
+            "color": 0xffffff,
           }
-        ],
-        mtl: [
-          {
-            name: "材质A",
-          }
-        ]
+        },
+        "ambientLight": {
+          "color": 0xffffff,
+          "intensity": .5,
+          "position": [0, 150, 150]
+        },
+        "camera": {},
+        "control": {
+
+        },
+        "external": {}
       }
-    ],
-    files: []
+    ]
   }
 }
