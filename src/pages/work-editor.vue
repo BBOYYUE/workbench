@@ -1,6 +1,7 @@
 <template>
   <div>
-    <component :is="editComponent"></component>
+    <component :is="editComponent"
+               :uuid="uuid"></component>
   </div>
 </template>
 <script>
@@ -163,6 +164,20 @@ export default {
       value: entities.option,
     });
     this.$store.dispatch("dictionary/getDictionary");
+    let that = this;
+
+    this.$store.dispatch('editor/' + [MutationType.GET_LIST], {
+      uuid: that.uuid
+    })
+    // setInterval(
+    //   function () {
+    //     that.$store.dispatch('editor/' + [MutationType.GET_LIST], {
+    //       uuid: that.uuid
+    //     })
+    //   }, 10000
+    // )
+
+
     this.authGates();
   },
   watch: {

@@ -8,10 +8,11 @@
       <el-sub-menu index="infomation">
         <template #title><span>基本信息</span></template>
         <el-menu-item index="infomation-1">作品信息</el-menu-item>
-        <el-menu-item index="infomation-2">添加场景</el-menu-item>
+        <el-menu-item index="infomation-2">场景分组</el-menu-item>
       </el-sub-menu>
       <el-sub-menu index="box">
         <template #title><span>物体盒子</span></template>
+        <el-menu-item index="infomation-2">添加场景</el-menu-item>
         <el-menu-item index="box-1">外部物体</el-menu-item>
         <el-menu-item index="box-2">简单三维几何体</el-menu-item>
         <el-menu-item index="box-3">简单二维几何体</el-menu-item>

@@ -33,8 +33,7 @@
       <el-tab-pane label="文件列表"
                    key="files"
                    class="h-full w-full">
-        <div class="w-24 h-20 text-center flex flex-col justify-between">
-        </div>
+        <footer-file-list></footer-file-list>
       </el-tab-pane>
       <el-tab-pane label="任务列表"
                    key="tasks"
@@ -43,26 +42,32 @@
       <el-tab-pane label="上传列表"
                    key="uploads"
                    class="h-full w-full">
-        <el-scrollbar class="w-full h-full"
-                      always>
-          <el-upload class="w-full h-full"
-                     :data="{uuid}"
-                     :headers="{
-                          Authorization: 'Bearer ' + access_token
-                         }"
-                     action="  
-                         http://192.168.10.10/api/v2/filesystems"
-                     multiple
-                     drag>
-            <el-icon class="el-icon--upload">
-              <upload-filled />
-            </el-icon>
-            <div class="el-upload__text">
-              拖到这里或者 <em>点击上传</em>
-            </div>
-          </el-upload>
-        </el-scrollbar>
+        <footer-upload-file :uuid="uuid"></footer-upload-file>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
+<script>
+import FooterUploadFile from "../../../components/editor/common/footer-upload-file.vue";
+import FooterFileList from "../../../components/editor/common/footer-file-list.vue"
+
+export default {
+  components: {
+    FooterUploadFile, FooterFileList
+  },
+  setup () {
+
+  },
+  props: { uuid: String },
+  computed: {
+    access_token () {
+      return this.$store.state.auth.access_token;
+    },
+
+  },
+  data () {
+    return {
+    }
+  },
+}
+</script>

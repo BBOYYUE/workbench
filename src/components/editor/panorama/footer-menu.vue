@@ -5,10 +5,15 @@
       <el-tab-pane label="场景分组列表"
                    key="sceneGroups"
                    class="h-full w-full">
+        <el-tabs tab-position="left">
+          <el-tab-pane label="所有场景"
+                       key="allSceneGroup"></el-tab-pane>
+        </el-tabs>
       </el-tab-pane>
       <el-tab-pane label="场景列表"
                    key="scene"
-                   class="h-full w-full">
+                   class="h-full w-full flex flex-row">
+        <footer-scene-list></footer-scene-list>
       </el-tab-pane>
       <el-tab-pane label="小地图列表"
                    key="maps"
@@ -48,60 +53,44 @@
       </el-tab-pane>
       <el-tab-pane label="文件列表"
                    key="files"
-                   class="h-full w-full">
-        <div class="w-24 h-20 text-center flex flex-col justify-between">
-          <div class="text-center">
-            <un-known-file class="w-12 h-12"></un-known-file>
-          </div>
-          <div class="overflow-clip">区域鸟瞰.jpg</div>
-        </div>
+                   class="h-full w-full flex flex-row">
+        <footer-file-list></footer-file-list>
       </el-tab-pane>
       <el-tab-pane label="任务列表"
                    key="files"
                    class="h-full w-full">
-
+        <footer-task-list :uuid="uuid"></footer-task-list>
       </el-tab-pane>
       <el-tab-pane label="上传列表"
                    key="upload"
                    class="h-full w-full">
-        <el-scrollbar height="150px"
-                      always>
-          <el-upload :data="{uuid}"
-                     :headers="{
-                          Authorization: 'Bearer ' + access_token
-                         }"
-                     action="
-                         http://192.168.10.10/api/v2/filesystems"
-                     multiple
-                     drag>
-            <el-icon class="el-icon--upload">
-              <upload-filled />
-            </el-icon>
-            <div class="el-upload__text">
-              拖到这里或者 <em>点击上传</em>
-            </div>
-          </el-upload>
-        </el-scrollbar>
+        <footer-upload-file :uuid="uuid"></footer-upload-file>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 <script>
+import FooterUploadFile from "../../../components/editor/common/footer-upload-file.vue";
+import FooterFileList from "../../../components/editor/common/footer-file-list.vue"
+import FooterSceneList from '../common/footer-scene-list.vue';
+import FooterTaskList from "../common/footer-task-list.vue";
+
 export default {
   components: {
-
+    FooterUploadFile, FooterFileList, FooterSceneList, FooterTaskList
   },
   setup () {
 
   },
+  props: { uuid: String },
+  computed: {
+    access_token () {
+      return this.$store.state.auth.access_token;
+    },
+  },
   data () {
     return {
-      layout: [
-        { "x": 0, "y": 0, "w": 1, "h": 1, "i": "0" },
-        { "x": 1, "y": 0, "w": 1, "h": 1, "i": "1" },
-        { "x": 2, "y": 0, "w": 1, "h": 1, "i": "2" },
-      ],
     }
-  }
+  },
 }
 </script>

@@ -35,23 +35,24 @@
       <div class="w-full h-full">
         <div class="w-full h-full"
              id="right-form">
-          <right-form :active="leftMenuItemActive"></right-form>
+          <right-form :active="leftMenuItemActive"
+                      :uuid="uuid"></right-form>
         </div>
       </div>
     </template>
     <template v-slot:footer>
-      <footer-menu></footer-menu>
+      <footer-menu :uuid="uuid"></footer-menu>
     </template>
   </base-editor>
 </template>
 <script>
 /* eslint-disable */
-import BaseEditor from "@/module/base-editor.vue";
+import BaseEditor from "@/module/base-editor.vue"
 import LeftMenu from "./left-menu.vue"
 import panorama from "@/util/mock/panorama"
 import JsonFormatter from "json-string-formatter"
-import UnKnownFile from '@/components/icon/unKnownFile.vue';
-import FooterMenu from './footer-menu.vue';
+import UnKnownFile from '@/components/icon/unKnownFile.vue'
+import FooterMenu from './footer-menu.vue'
 import ContentMenu from "./content-menu.vue"
 import RightForm from "./right-form.vue"
 import krpanoUtil from "../../../util/krpano/util"
@@ -63,46 +64,6 @@ export default {
   components: { LeftMenu, BaseEditor, UnKnownFile, FooterMenu, ContentMenu, RightForm },
   data () {
     return {
-      option: [
-        {
-          name: "112m²",
-          uuid: 123123,
-          scene: [
-            {
-              thumburl: "",
-              view: {
-                hlookat: '',
-                vlookat: '',
-                fovtype: "",
-                fov: "",
-                maxpixelzoom: "",
-                fovmin: "",
-                fovmax: "",
-                limitview: "",
-                hlookatmin: "",
-                hlookatmax: "",
-                vlookatmin: "",
-                vlookatmax: ""
-              },
-              hotpostGroup: [
-                {
-                  hotspot: [
-                    {
-                      event: []
-                    }
-                  ],
-                  event: []
-                }
-              ],
-              text: [],
-              img: [],
-              map: [],
-              event: []
-            }
-          ],
-          event: []
-        },
-      ],
       optionString: "",
 
       /**
@@ -117,60 +78,12 @@ export default {
       /**
        * 资源列表
        */
-      assetList: {
-        sceneGroups: [
-          {
-            name: "默认分组",
-            style: "默认样式",
-            map: "",
-            scenes: [],
-            isShow: true,
-            events: []
-          }
-        ],
-        scenes: [
-          {
-            name: "厨房",
-            file: "",
-            angle: "",
-            hotspotGroups: [],
-            hotspots: [],
-            texts: [],
-            imgs: [],
-            events: []
-          }
-        ],
-        maps: [
-          {
-            name: "112户型",
-            file: "",
-            spots: [
-              {
-                x: 0,
-                y: 0,
-                angle: 90,
-              }
-            ]
-          }
-        ],
-        hotspotGroups: [],
-        hotspots: [],
-        flags: [],
-        texts: [],
-        imgs: [],
-        angles: [],
-        effects: [],
-        events: [],
-        files: [],
-        tasks: [],
-        uploads: []
-      }
     }
   },
   computed: {
     access_token () {
       return this.$store.state.auth.access_token
-    }
+    },
   },
   methods: {
     leftMenuItemChange (item) {

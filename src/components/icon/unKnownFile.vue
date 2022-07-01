@@ -15,6 +15,6 @@
 <script>
 export default {
   props: ["iconColor"],
-  name: "unKnownFile",
+  name: "JpgFile",
 };
 </script>

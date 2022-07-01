@@ -37,7 +37,7 @@
       </div>
     </template>
     <template v-slot:footer>
-      <footer-menu></footer-menu>
+      <footer-menu :uuid="uuid"></footer-menu>
     </template>
   </base-editor>
 </template>
@@ -51,6 +51,9 @@ export default {
   components: { BaseEditor, LeftMenu, FooterMenu, ContentMenu, RightForm },
   setup () {
 
+  },
+  props: {
+    uuid: String
   },
   mounted () {
     this.editorType = 'view'

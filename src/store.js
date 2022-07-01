@@ -1,6 +1,7 @@
 import { createStore } from 'vuex'
 import option from "./store/option";
 import asset from "./store/asset";
+import editor from './store/editor';
 import project from "./store/project"
 import dictionary from './store/dictionary';
 import auth from "./store/auth"
@@ -31,7 +32,8 @@ const store = createStore({
     asset: asset,
     project: project,
     dictionary: dictionary,
-    auth: auth
+    auth: auth,
+    editor: editor
   }
 })
 

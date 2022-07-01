@@ -36,20 +36,23 @@
       </div>
     </template>
     <template v-slot:footer>
-      <footer-menu></footer-menu>
+      <footer-menu :uuid="uuid"></footer-menu>
     </template>
   </base-editor>
 </template>
 <script>
 
-import BaseEditor from "@/module/base-editor.vue";
-import LeftMenu from './left-menu.vue';
-import JsonFormatter from "json-string-formatter";
+import BaseEditor from "@/module/base-editor.vue"
+import LeftMenu from './left-menu.vue'
+import JsonFormatter from "json-string-formatter"
 import threejs from "@/util/mock/three"
 import SceneUtil from "@/util/three/util"
-import FooterMenu from './footer-menu.vue';
+import FooterMenu from './footer-menu.vue'
 import ContentMenu from "./content-menu.vue"
 export default {
+  props: {
+    uuid: String
+  },
   setup () {
 
   },
