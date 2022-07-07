@@ -2,11 +2,32 @@
   <base-editor>
     <template v-slot:header>
       <div class="h-full flex flex-col justify-center">
-        <div class="text-white text-lg ml-4">
-          全景编辑器
-          <span class="text-base">3.0.0</span>
+        <div class="flex flex-row justify-between">
+          <div class="text-white text-lg ml-4">
+            全景编辑器
+            <span class="text-base">3.0.0</span>
+          </div>
+          <div class="mr-4  flex flex-col justify-center">
+
+            <el-dropdown>
+              <el-icon style="color:white">
+                <MoreFilled />
+              </el-icon>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item>
+                    任务队列
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    上传列表
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </div>
       </div>
+
     </template>
     <template v-slot:left>
       <left-menu @change="leftMenuItemChange" />

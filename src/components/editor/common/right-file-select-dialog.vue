@@ -4,6 +4,7 @@
              title="选择文件"
              :before-close="handleClose"
              width="730px">
+    <!-- 多选 -->
     <el-checkbox-group v-model="form.fileList"
                        v-if="type=='select'">
       <div class="flex flex-row w-full h-full flex-wrap overflow-y-auto"
@@ -26,22 +27,26 @@
         </div>
       </div>
     </el-checkbox-group>
+    <!-- 单选 -->
     <el-radio-group v-else
                     v-model="form.file_uuid">
-      <div class="p-2 mx-1 my-2 shadow-inner"
-           v-for="item in fileList"
-           :key="item"
-           style="height: 140px">
-        <el-image class="border rounded-md"
-                  style="width: 200px; height: 100px"
-                  :src="getThumbPath(item.file_path)"
-                  fit="cover"
-                  v-if="['jpg','jpeg','png'].includes(item.extension)">
-        </el-image>
-        <component v-else
-                   :is="fileIcon(item)"></component>
-        <div class="flex flex-row">
-          <el-radio :label="item.uuid">{{ item.source_name }}</el-radio>
+      <div class="flex flex-row w-full h-full flex-wrap overflow-y-auto"
+           style="height: 400px">
+        <div class="p-2 mx-1 my-2 shadow-inner"
+             v-for="item in fileList"
+             :key="item"
+             style="height: 140px">
+          <el-image class="border rounded-md"
+                    style="width: 200px; height: 100px"
+                    :src="getThumbPath(item.file_path)"
+                    fit="cover"
+                    v-if="['jpg','jpeg','png'].includes(item.extension)">
+          </el-image>
+          <component v-else
+                     :is="fileIcon(item)"></component>
+          <div class="flex flex-row">
+            <el-radio :label="item.uuid">{{ item.source_name }}</el-radio>
+          </div>
         </div>
       </div>
     </el-radio-group>
@@ -63,7 +68,6 @@ export default {
   components: { UnKnownFile, PngFile, JpgFile },
   computed: {
     fileList () {
-      console.log(this.$store.state.editor.list.file_list)
       return this.$store.state.editor.list.file_list
     },
   },

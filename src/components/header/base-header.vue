@@ -26,11 +26,11 @@
     <div class="h-16 w-80">
       <div class="flex flex-row justify-end">
         <!-- <div class="flex flex-col justify-center">
-        <div class="mr-3 py-1 px-2 border border-solid border-gray-600 rounded-md shadow-inner text-gray-400"
-             @click="this.$router.push('/')">
-          回到主页
-        </div>
-      </div> -->
+          <div class="mr-3 py-1 px-2 border border-solid border-gray-600 rounded-md shadow-inner text-gray-400"
+               @click="this.$router.push('/')">
+            回到主页
+          </div>
+        </div> -->
 
         <div class="flex flex-col justify-center">
           <div class="h-8 w-8 m-3">

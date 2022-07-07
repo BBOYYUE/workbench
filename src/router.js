@@ -4,6 +4,8 @@ import workEditorComponent from "./pages/work-editor.vue"
 import login from "./components/auth/login.vue"
 import phoneLogin from "./components/auth/phoneLogin.vue"
 import register from "./components/auth/register.vue"
+import taskListComponent from "./pages/taskList.vue"
+import uploadListComponent from "./pages/uploadList"
 
 const isWeChat = /MicroMessenger/i.test(window.navigator.userAgent)
 const routes = [
@@ -27,7 +29,18 @@ const routes = [
     meta: {
       auth: isWeChat,
     },
-  }, {
+  },
+  {
+    path: '/taskList',
+    name: 'taskList',
+    component: taskListComponent
+  },
+  {
+    path: '/uploadList',
+    name: 'uploadList',
+    component: uploadListComponent
+  },
+  {
     path: '/login',
     name: 'login',
     component: login,

@@ -5,6 +5,9 @@
   </keep-alive>
 </template>
 <script>
+/**
+ * 左侧菜单的所有表单组件
+ */
 import InformationForm from "./forms/information-form.vue"
 import SceneGroupForm from "./forms/scene-group-from.vue";
 import PanoForm from "./forms/pano-form.vue";
@@ -16,6 +19,11 @@ import ImgForm from "./forms/img-form.vue";
 import AngleForm from "./forms/angle-form.vue";
 import EventListen from "./forms/event-listen.vue";
 import EventResponse from "./forms/event-response.vue";
+
+/**
+ * 这里需要增加一些info组件
+ */
+
 
 export default {
   props: {
