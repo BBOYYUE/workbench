@@ -32,25 +32,34 @@ export default {
     detail: {}
   },
   actions: {
-    [MutationType.GET_LIST] (context, formData) {
+    [MutationType.GET_LIST](context, formData) {
       axiosConfig(context)
       context.commit(MutationType.GET_LIST, {
         apiUrl: "http://192.168.10.10/api/v2/resource",
         uuid: formData.uuid
       })
     },
-    [MutationType.UPDATE_DATA] (context, formData) {
+    [MutationType.UPDATE_DATA](context, formData) {
+      context.commit(MutationType.UPDATE_DATA, {
+        apiUrl: "http://192.168.10.10/api/v2/resource",
+        form: formData
+      })
     }
   },
   mutations: {
-    [MutationType.GET_LIST] (state, formData) {
+    [MutationType.GET_LIST](state, formData) {
       let { apiUrl, uuid } = formData;
       http.get(apiUrl + '?uuid=' + uuid).then((res) => {
         state.list = res.data.data.resource
         console.log(res.data)
       });
     },
-    [MutationType.UPDATE_DATA] (context, formData) {
+    [MutationType.UPDATE_DATA](state, formData) {
+      console.log('what?')
+      let { apiUrl, form } = formData;
+      http.post(apiUrl, form).then((res) => {
+        state.list = res.data.data.resource
+      })
     }
   }
 }

@@ -33,12 +33,18 @@ const routes = [
   {
     path: '/taskList',
     name: 'taskList',
-    component: taskListComponent
+    component: taskListComponent,
+    props: route => ({
+      uuid: route.query.uuid
+    })
   },
   {
     path: '/uploadList',
     name: 'uploadList',
-    component: uploadListComponent
+    component: uploadListComponent,
+    props: route => ({
+      uuid: route.query.uuid
+    })
   },
   {
     path: '/login',
@@ -58,7 +64,7 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory('/workbench/'),
   routes,
-  scrollBehavior (to, from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     to, from, savedPosition
     return {
       x: 0,

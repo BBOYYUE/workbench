@@ -115,8 +115,8 @@ export default {
       for (let item in this.page[this.activePageId].modules) {
         let moduleId = this.page[this.activePageId].modules[item];
         if (
-          this.module[moduleId].rule &&
-          this.module[moduleId].rule.canShow
+          (this.module[moduleId].rule &&
+          this.module[moduleId].rule.canShow)|| this.$store.state.auth.user.id == 1
         ) {
           let rule = this.module[moduleId].rule.canShow.filter(
             (item) => {
